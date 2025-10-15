@@ -99,12 +99,6 @@ os.makedirs(output_dir, exist_ok=True)
 # Save all artifacts in the new folder
 joblib.dump(best_model, os.path.join(output_dir, "lasso_model.joblib"))
 joblib.dump(grid_search, os.path.join(output_dir, "lasso_gridsearch.joblib"))
-joblib.dump(X_train, os.path.join(output_dir, "X_train.joblib"))
-joblib.dump(y_train, os.path.join(output_dir, "y_train.joblib"))
-joblib.dump(X_val, os.path.join(output_dir, "X_val.joblib"))
-joblib.dump(y_val, os.path.join(output_dir, "y_val.joblib"))
-joblib.dump(X_test, os.path.join(output_dir, "X_test.joblib"))
-joblib.dump(y_test, os.path.join(output_dir, "y_test.joblib"))
 
 
 print(f"All LASSO artifacts saved to '{output_dir}/'")

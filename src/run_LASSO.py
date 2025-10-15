@@ -13,19 +13,14 @@ from sklearn.compose import ColumnTransformer
 from preprocessing_utils import *
 import config
 
-# -------------------------------------------------------------------------------------
-# Load and preprocess data
-# -------------------------------------------------------------------------------------
-X_train, y_train, X_val, y_val, X_test, y_test, clinical_cols, mrna_cols, mutation_cols = load_and_split_data()
-
-preprocessor = ColumnTransformer(
-    transformers=[
-        ("clinical", ClinicalPreprocessorWrapper(), clinical_cols),
-        ("mrna", MrnaPreprocessorWrapper(), mrna_cols),
-        ("mutation", MutationPreprocessorWrapper(), mutation_cols),
-    ]
-)
-preprocessor.set_output(transform="pandas")
+# Load everything
+X_train = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "X_train.joblib"))
+y_train = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "y_train.joblib"))
+X_val = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "X_val.joblib"))
+y_val = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "y_val.joblib"))
+X_test = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "X_test.joblib"))
+y_test = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "y_test.joblib"))
+preprocessor = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "preprocessor.joblib"))
 
 cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=config.SEED)
 
@@ -51,14 +46,11 @@ def run_and_save_model(name, pipeline, param_grid):
     output_dir = f"{name}_grid_search"
     os.makedirs(output_dir, exist_ok=True)
 
-    joblib.dump(best_model, os.path.join(output_dir, f"{name}_model.joblib"))
-    joblib.dump(preprocessor, os.path.join(output_dir, "preprocessor.joblib"))
-    joblib.dump(clinical_cols, os.path.join(output_dir, "clinical_cols.joblib"))
-    joblib.dump(mrna_cols, os.path.join(output_dir, "mrna_cols.joblib"))
-    joblib.dump(mutation_cols, os.path.join(output_dir, "mutation_cols.joblib"))
-    joblib.dump(grid_search, os.path.join(output_dir, f"{name}_gridsearch.joblib"))
+    # Save all artifacts in the new folder
+    joblib.dump(best_model, os.path.join(output_dir, "lasso_model.joblib"))
+    joblib.dump(grid_search, os.path.join(output_dir, "lasso_gridsearch.joblib"))
 
-    print(f"✅ All artifacts saved to '{output_dir}/'\n")
+    print(f"All artifacts saved to '{output_dir}/'\n")
 
 
 # -------------------------------------------------------------------------------------
@@ -82,7 +74,7 @@ def run_select_k_best():
 
     param_grid = {
         'select__k': [25, 50, 100, 200],
-        'clf__C': [0.1, 1, 10]
+        'clf__C': [0.01, 0.1, 1, 10]
     }
 
     run_and_save_model("lasso_selectkbest", pipeline, param_grid)
@@ -95,7 +87,7 @@ def run_bootstrapped_select_k_best():
     pipeline = Pipeline([
         ('preprocessor', preprocessor),
         ('var_thresh', VarianceThreshold(threshold=0.001).set_output(transform="pandas")),
-        ('select', BootstrappedSelectKBest(score_func=f_classif)),  # Custom transformer
+        ("select", BootstrappedSelectKBest()),
         ('clf', LogisticRegression(
             penalty='l1',
             solver='saga',
@@ -110,8 +102,8 @@ def run_bootstrapped_select_k_best():
     param_grid = {
         'select__k': [25, 50, 100],
         'select__n_bootstraps': [20, 50, 100],
-        'select__bootstrap_frac': [0.7, 0.9],
-        'clf__C': [0.1, 1, 10],
+        'select__threshold': [0.2, 0.3, 0.4, 0.5, 0.6],
+        'clf__C': [0.01, 0.1, 1, 10]
     }
 
     run_and_save_model("lasso_bootstrapped_selectkbest", pipeline, param_grid)
@@ -124,12 +116,7 @@ def run_stability_selection():
     pipeline = Pipeline([
         ('preprocessor', preprocessor),
         ('var_thresh', VarianceThreshold(threshold=0.001).set_output(transform="pandas")),
-        ('select', StabilitySelection(base_estimator=LogisticRegression(
-            penalty='l1',
-            solver='saga',
-            max_iter=10000,
-            random_state=config.SEED
-        ))),
+        ("select", StabilitySelection()),
         ('clf', LogisticRegression(
             penalty='l1',
             solver='saga',
@@ -142,9 +129,10 @@ def run_stability_selection():
     ])
 
     param_grid = {
-        'select__threshold': [0.3, 0.5, 0.7],
+        'select__stability_threshold': [0.6, 0.7, 0.8, 0.9],
         'select__n_bootstraps': [50, 100],
-        'clf__C': [0.1, 1, 10],
+        'select__fpr_alpha': [0.01, 0.05, 0.1, 0.2],
+        'clf__C': [0.01, 0.1, 1, 10]
     }
 
     run_and_save_model("lasso_stability_selection", pipeline, param_grid)
