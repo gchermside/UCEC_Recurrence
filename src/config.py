@@ -3,6 +3,7 @@
 
 # Directories ---------------------------------------------------------------------------
 DATA_DIR = '../preprocessed_data/'
+SPLIT_DATA_DIR = "../split_data"
 MODEL_DIR = '../models/'
 
 # Data file paths ------------------------------------------------------------------------

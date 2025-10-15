@@ -27,19 +27,19 @@ import config
 
 # Load and split the data ---------------------------------------------------------------
 
-X_train, y_train, X_val, y_val, X_test, y_test, clinical_cols, mrna_cols, mutation_cols = load_and_split_data()
+# Define directory where the data was saved
 
-preprocessor = ColumnTransformer(
-    transformers=[
-        ("clinical", ClinicalPreprocessorWrapper(), clinical_cols),
-
-        ("mrna", MrnaPreprocessorWrapper(), mrna_cols),
-
-        ("mutation", MutationPreprocessorWrapper(), mutation_cols),
-    ]
-)
-
-preprocessor.set_output(transform="pandas") # otherwise, output is converted to numpy array
+# Load everything
+X_train = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "X_train.joblib"))
+y_train = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "y_train.joblib"))
+X_val = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "X_val.joblib"))
+y_val = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "y_val.joblib"))
+X_test = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "X_test.joblib"))
+y_test = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "y_test.joblib"))
+clinical_cols = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "clinical_cols.joblib"))
+mrna_cols = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "mrna_cols.joblib"))
+mutation_cols = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "mutation_cols.joblib"))
+preprocessor = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "preprocessor.joblib"))
 
 def run_LASSO():
     print("Running Logistic Regression with LASSO")
@@ -98,10 +98,13 @@ os.makedirs(output_dir, exist_ok=True)
 
 # Save all artifacts in the new folder
 joblib.dump(best_model, os.path.join(output_dir, "lasso_model.joblib"))
-joblib.dump(preprocessor, os.path.join(output_dir, "preprocessor.joblib"))
-joblib.dump(clinical_cols, os.path.join(output_dir, "clinical_cols.joblib"))
-joblib.dump(mrna_cols, os.path.join(output_dir, "mrna_cols.joblib"))
-joblib.dump(mutation_cols, os.path.join(output_dir, "mutation_cols.joblib"))
 joblib.dump(grid_search, os.path.join(output_dir, "lasso_gridsearch.joblib"))
+joblib.dump(X_train, os.path.join(output_dir, "X_train.joblib"))
+joblib.dump(y_train, os.path.join(output_dir, "y_train.joblib"))
+joblib.dump(X_val, os.path.join(output_dir, "X_val.joblib"))
+joblib.dump(y_val, os.path.join(output_dir, "y_val.joblib"))
+joblib.dump(X_test, os.path.join(output_dir, "X_test.joblib"))
+joblib.dump(y_test, os.path.join(output_dir, "y_test.joblib"))
+
 
 print(f"All LASSO artifacts saved to '{output_dir}/'")
