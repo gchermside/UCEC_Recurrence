@@ -7,6 +7,8 @@ from sklearn.feature_selection import SelectFpr, f_classif
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
 from sklearn.feature_selection import SelectKBest
+from sklearn.model_selection import train_test_split
+
 import config
 
 def load_clinical_data(clinical_file):
@@ -199,6 +201,42 @@ def drop_patients_missing_data(clinical_df, mrna_df, mutation_df, labels):
 
     return clinical_df_clean, mrna_df_clean, mutation_df_clean, labels_clean
 
+def load_and_split_data(clinical_file=config.CLINICAL_DATA_PATH,
+                        mrna_file=config.MRNA_DATA_PATH,
+                        mutation_file=config.MUTATION_DATA_PATH,
+                        treatment_file=config.TREATMENT_DATA_PATH,
+                        status_file=config.STATUS_DATA_PATH,
+                        test_size=0.15,
+                        val_size=0.15,
+                        random_state=config.SEED):
+    """loads data, generates labels, drops patients missing from any dataset, 
+    and splits into train/validation/and test sets.
+    Returns:"""
+    clinical_df = load_clinical_data(clinical_file)
+    mrna_df = load_mrna_data(mrna_file)
+    mutation_df = load_mutation_data(mutation_file)
+    labels = generate_recurrence_labels(
+        treatment_file=treatment_file,
+        status_file=status_file,
+        clinical_file=config.CLINICAL_DATA_PATH,
+    )
+
+    clinical_df, mrna_df, mutation_df, labels = drop_patients_missing_data(clinical_df, mrna_df, mutation_df, labels)
+
+    clinical_cols = clinical_df.columns.tolist()
+    mrna_cols = mrna_df.columns.tolist()
+    mutation_cols = mutation_df.columns.tolist()
+
+    full_df = clinical_df.join(mrna_df, how="inner").join(mutation_df, how="inner")
+
+    X_train, X_temp, y_train, y_temp = train_test_split(
+        full_df, labels, test_size=0.30, random_state=random_state, stratify=labels
+    )
+    X_val, X_test, y_val, y_test = train_test_split(
+        X_temp, y_temp, test_size=0.50, random_state=random_state, stratify=y_temp
+    )
+    return (X_train, y_train, X_val, y_val, X_test, y_test, clinical_cols, mrna_cols, mutation_cols)
+
 
 class BasePreprocessor:
     def __init__(self, max_null_frac=0.3, uniform_thresh=0.99):
@@ -257,8 +295,8 @@ class ClinicalPreprocessor(BasePreprocessor):
         removed.extend(high_null_cols)
         
         # --- Step 3. Drop highly uniform columns
-        uniform_cols = self._drop_highly_uniform_columns(X)
-        removed.extend(uniform_cols)
+        uniform_cols, cols_to_remove = self._drop_highly_uniform_columns(X)
+        removed.extend(cols_to_remove)
 
         # --- Step 4. Drop all identified columns
         X = X.drop(columns=removed, errors="ignore")

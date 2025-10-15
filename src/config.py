@@ -1,10 +1,12 @@
 # config.py
 
+
 # Directories ---------------------------------------------------------------------------
-DATA_DIR = 'data/'
-MODEL_DIR = 'models/'
+DATA_DIR = '../preprocessed_data/'
+MODEL_DIR = '../models/'
 
 # Data file paths ------------------------------------------------------------------------
+CLINICAL_DATA_PATH = "../data/data_clinical_patient.txt"
 CLINICAL_DATA_PATH = "../ucec_tcga_pan_can_atlas_2018/data_clinical_patient.txt"
 MRNA_DATA_PATH = "../ucec_tcga_pan_can_atlas_2018/data_mrna_seq_v2_rsem_zscores_ref_all_samples.txt"
 TREATMENT_DATA_PATH = "../ucec_tcga_pan_can_atlas_2018/data_timeline_treatment.txt"
@@ -16,7 +18,7 @@ Y_TRAIN_PATH = DATA_DIR + 'y_train.pkl'
 X_TEST_PATH = DATA_DIR + 'X_test.pkl'
 Y_TEST_PATH = DATA_DIR + 'y_test.pkl'
 FEATURE_NAMES = DATA_DIR + 'feature_names.pkl'
-CORRELATED_GENES_PATH = "../data/correlated_genes_to_remove.pkl"
+CORRELATED_GENES_PATH = DATA_DIR + "correlated_genes_to_remove.pkl"
 
 # Model paths -----------------------------------------------------------------------------
 SVC_NO_LASSO_MODEL_PATH = MODEL_DIR + 'SVC_no_LASSO.pkl'
@@ -94,9 +96,6 @@ THRESHOLD_KBEST = 0.4
 MUTATION_COLS_TO_REMOVE = [] # consider removing common passenger genes
 MUTATION_MAX_NULL_FRAC = 0.3
 MUTATION_UNIFORM_THRESH = 0.99
-
-
-
 
 
 # Experiment metadata
