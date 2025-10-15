@@ -6,9 +6,11 @@ import os
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from sklearn.linear_model import LogisticRegression
+from xgboost import XGBClassifier
 from sklearn.feature_selection import SelectKBest, f_classif, VarianceThreshold
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
+
 
 from preprocessing_utils import *
 import config
@@ -16,10 +18,6 @@ import config
 # Load everything
 X_train = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "X_train.joblib"))
 y_train = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "y_train.joblib"))
-X_val = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "X_val.joblib"))
-y_val = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "y_val.joblib"))
-X_test = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "X_test.joblib"))
-y_test = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "y_test.joblib"))
 preprocessor = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "preprocessor.joblib"))
 
 cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=config.SEED)
@@ -54,7 +52,7 @@ def run_and_save_model(name, pipeline, param_grid):
 
 
 # -------------------------------------------------------------------------------------
-# 1️⃣ LASSO + SelectKBest
+# LASSO + SelectKBest
 # -------------------------------------------------------------------------------------
 def run_select_k_best():
     pipeline = Pipeline([
@@ -81,7 +79,7 @@ def run_select_k_best():
 
 
 # -------------------------------------------------------------------------------------
-# 2️⃣ LASSO + BootstrappedSelectKBest
+# LASSO + BootstrappedSelectKBest
 # -------------------------------------------------------------------------------------
 def run_bootstrapped_select_k_best():
     pipeline = Pipeline([
@@ -101,7 +99,7 @@ def run_bootstrapped_select_k_best():
 
     param_grid = {
         'select__k': [25, 50, 100],
-        'select__n_bootstraps': [20, 50, 100],
+        'select__n_bootstrap': [20, 50, 100],
         'select__threshold': [0.2, 0.3, 0.4, 0.5, 0.6],
         'clf__C': [0.01, 0.1, 1, 10]
     }
@@ -110,7 +108,7 @@ def run_bootstrapped_select_k_best():
 
 
 # -------------------------------------------------------------------------------------
-# 3️⃣ LASSO + StabilitySelection
+# LASSO + StabilitySelection
 # -------------------------------------------------------------------------------------
 def run_stability_selection():
     pipeline = Pipeline([
@@ -130,7 +128,7 @@ def run_stability_selection():
 
     param_grid = {
         'select__stability_threshold': [0.6, 0.7, 0.8, 0.9],
-        'select__n_bootstraps': [50, 100],
+        'select__n_boots': [50, 100],
         'select__fpr_alpha': [0.01, 0.05, 0.1, 0.2],
         'clf__C': [0.01, 0.1, 1, 10]
     }
@@ -139,9 +137,95 @@ def run_stability_selection():
 
 
 # -------------------------------------------------------------------------------------
+# LASSO no feature selection
+# -------------------------------------------------------------------------------------
+def run_lasso_no_feature_selection():
+    pipeline = Pipeline([
+        ('preprocessor', preprocessor),
+        ('var_thresh', VarianceThreshold(threshold=0.001).set_output(transform="pandas")),
+        ('clf', LogisticRegression(
+            penalty='l1',
+            solver='saga',
+            class_weight='balanced',
+            random_state=config.SEED,
+            max_iter=20000,
+            n_jobs=-1,
+            tol=1e-3,
+        )),
+    ])
+
+    param_grid = {
+        'clf__C': [0.01, 0.1, 1, 10]
+    }
+
+    run_and_save_model("lasso_no_feature_selection", pipeline, param_grid)
+
+# -------------------------------------------------------------------------------------
+# XGBoost (no feature selction)
+# -------------------------------------------------------------------------------------
+def run_xgboost():
+    pipeline = Pipeline([
+        ('preprocessor', preprocessor),
+        ('clf', XGBClassifier(
+            objective='binary:logistic',
+            eval_metric='auc',
+            n_jobs=-1,
+            random_state=config.SEED,
+            tree_method='hist',        # Efficient, GPU-friendly if available
+            use_label_encoder=False
+        )),
+    ])
+
+    # Larger but structured grid for balanced exploration
+    param_grid = {
+        'clf__n_estimators': [100, 300, 500],
+        'clf__learning_rate': [0.01, 0.05, 0.1],
+        'clf__max_depth': [3, 5, 7, 9],
+        'clf__subsample': [0.7, 0.85, 1.0],
+        'clf__colsample_bytree': [0.7, 0.85, 1.0],
+        'clf__gamma': [0, 0.1, 0.3],
+    }
+
+    run_and_save_model("xgboost", pipeline, param_grid)
+
+# -------------------------------------------------------------------------------------
+# XGBoost (no feature selction)
+# -------------------------------------------------------------------------------------
+def run_xgboost_selectkbest():
+    pipeline = Pipeline([
+        ('preprocessor', preprocessor),
+        ('select', SelectKBest(score_func=f_classif)),
+        ('clf', XGBClassifier(
+            objective='binary:logistic',
+            eval_metric='auc',
+            n_jobs=-1,
+            random_state=config.SEED,
+            tree_method='hist',        # Efficient, GPU-friendly if available
+            use_label_encoder=False
+        )),
+    ])
+    print(type(pipeline.named_steps['clf']))
+
+    # Larger but structured grid for balanced exploration
+    param_grid = {
+        'clf__n_estimators': [100, 300, 500],
+        'clf__learning_rate': [0.05, 0.1],
+        'clf__max_depth': [3, 5, 7],
+        'clf__subsample': [0.8, 1.0],
+        'clf__colsample_bytree': [0.8, 1.0],
+        'select__k': [25, 50, 100, 200]
+    }
+
+
+    run_and_save_model("xgboost_selectkbest", pipeline, param_grid)
+
+# -------------------------------------------------------------------------------------
 # Run all models sequentially
 # -------------------------------------------------------------------------------------
 if __name__ == "__main__":
-    run_select_k_best()
-    run_bootstrapped_select_k_best()
-    run_stability_selection()
+    # run_select_k_best()
+    # run_bootstrapped_select_k_best()
+    # run_stability_selection()
+    run_lasso_no_feature_selection()
+    run_xgboost_selectkbest()
+    run_xgboost()
