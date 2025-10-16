@@ -1,4 +1,0 @@
-Model,Path,AUROC,Precision,Recall,F1,Accuracy,TP,FP,TN,FN
-lasso_model.joblib,../models/lasso_stability_selection_grid_search/lasso_model.joblib,0.7244755244755244,0.375,0.6923076923076923,0.4864864864864865,0.7205882352941176,9,15,40,4
-lasso_model.joblib,../models/lasso_selectkbest_grid_search/lasso_model.joblib,0.6895104895104895,0.3888888888888889,0.5384615384615384,0.45161290322580644,0.75,7,11,44,6
-lasso_model.joblib,../models/lasso_bootstrapped_selectkbest_grid_search/lasso_model.joblib,0.6853146853146854,0.5,0.5384615384615384,0.5185185185185185,0.8088235294117647,7,7,48,6

@@ -2,14 +2,18 @@ import numpy as np
 import pandas as pd
 import joblib
 import os
+import sys
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 from xgboost import XGBClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import SelectKBest, f_classif, VarianceThreshold
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
+
+from sklearn.pipeline import Pipeline
 
 
 from preprocessing_utils import *
@@ -45,8 +49,8 @@ def run_and_save_model(name, pipeline, param_grid):
     os.makedirs(output_dir, exist_ok=True)
 
     # Save all artifacts in the new folder
-    joblib.dump(best_model, os.path.join(output_dir, "lasso_model.joblib"))
-    joblib.dump(grid_search, os.path.join(output_dir, "lasso_gridsearch.joblib"))
+    joblib.dump(best_model, os.path.join(output_dir, "model.joblib"))
+    joblib.dump(grid_search, os.path.join(output_dir, "gridsearch.joblib"))
 
     print(f"All artifacts saved to '{output_dir}/'\n")
 
@@ -54,7 +58,7 @@ def run_and_save_model(name, pipeline, param_grid):
 # -------------------------------------------------------------------------------------
 # LASSO + SelectKBest
 # -------------------------------------------------------------------------------------
-def run_select_k_best():
+def run_lasso_selectkbest():
     pipeline = Pipeline([
         ('preprocessor', preprocessor),
         ('var_thresh', VarianceThreshold(threshold=0.001).set_output(transform="pandas")),
@@ -81,7 +85,7 @@ def run_select_k_best():
 # -------------------------------------------------------------------------------------
 # LASSO + BootstrappedSelectKBest
 # -------------------------------------------------------------------------------------
-def run_bootstrapped_select_k_best():
+def run_lasso_bootstrapped_selectkbest():
     pipeline = Pipeline([
         ('preprocessor', preprocessor),
         ('var_thresh', VarianceThreshold(threshold=0.001).set_output(transform="pandas")),
@@ -110,7 +114,7 @@ def run_bootstrapped_select_k_best():
 # -------------------------------------------------------------------------------------
 # LASSO + StabilitySelection
 # -------------------------------------------------------------------------------------
-def run_stability_selection():
+def run_lasso_stability_selection():
     pipeline = Pipeline([
         ('preprocessor', preprocessor),
         ('var_thresh', VarianceThreshold(threshold=0.001).set_output(transform="pandas")),
@@ -220,12 +224,109 @@ def run_xgboost_selectkbest():
     run_and_save_model("xgboost_selectkbest", pipeline, param_grid)
 
 # -------------------------------------------------------------------------------------
-# Run all models sequentially
+# Random Forest (SelectKBest)
+# -------------------------------------------------------------------------------------
+
+def run_randomforest_selectkbest():
+    pipeline = Pipeline([
+        ('preprocessor', preprocessor),
+        ('select', SelectKBest(score_func=f_classif)),
+        ('clf', RandomForestClassifier(
+            n_jobs=-1,
+            random_state=config.SEED
+        )),
+    ])
+
+    # Structured but smaller grid for reasonable runtime
+    param_grid = {
+        'clf__n_estimators': [100, 300, 500],
+        'clf__max_depth': [None, 5, 10],
+        'clf__min_samples_split': [2, 5, 10],
+        'clf__min_samples_leaf': [1, 2, 4],
+        'clf__max_features': ['sqrt', 'log2'],
+        'select__k': [25, 50, 100, 200]
+    }
+
+    run_and_save_model("randomforest_selectkbest", pipeline, param_grid)
+
+# -------------------------------------------------------------------------------------
+# Random Forest (Stability Selection)
+# -------------------------------------------------------------------------------------
+
+def run_randomforest_stability_selection():
+    pipeline = Pipeline([
+        ('preprocessor', preprocessor),
+        ('select', StabilitySelection()),
+        ('clf', RandomForestClassifier(
+            n_jobs=-1,
+            random_state=config.SEED
+        )),
+    ])
+
+    # Structured but smaller grid for reasonable runtime
+    param_grid = {
+        'clf__n_estimators': [100, 300, 500],
+        'clf__max_depth': [None, 5, 10],
+        'clf__min_samples_split': [2, 5, 10],
+        'clf__min_samples_leaf': [1, 2, 4],
+        'clf__max_features': ['sqrt', 'log2'],
+        'select__stability_threshold': [0.7, 0.8, 0.9],
+        'select__n_boots': [50],
+        'select__fpr_alpha': [0.01, 0.05],
+    }
+
+    run_and_save_model("randomforest_selectkbest", pipeline, param_grid)
+
+# -------------------------------------------------------------------------------------
+# SVC (SelectKBest)
+# -------------------------------------------------------------------------------------
+
+from sklearn.svm import SVC
+
+def run_svc_selectkbest():
+    pipeline = Pipeline([
+        ('preprocessor', preprocessor),
+        ('select', SelectKBest(score_func=f_classif)),
+        ('clf', SVC(
+            probability=True,      # Needed for ROC/AUC
+            random_state=config.SEED
+        )),
+    ])
+
+    # SVC grid:
+    param_grid = {
+        'select__k': [25, 50, 100, 200],
+        'clf__C': [0.1, 1, 10],
+        'clf__kernel': ['linear', 'rbf'],
+        'clf__gamma': ['scale', 'auto'],  # Relevant for rbf
+    }
+
+    run_and_save_model("svm_selectkbest", pipeline, param_grid)
+
+
+# -------------------------------------------------------------------------------------
+# Run all models
 # -------------------------------------------------------------------------------------
 if __name__ == "__main__":
-    # run_select_k_best()
-    # run_bootstrapped_select_k_best()
-    # run_stability_selection()
-    run_lasso_no_feature_selection()
-    run_xgboost_selectkbest()
-    run_xgboost()
+    model_name = sys.argv[1] if len(sys.argv) > 1 else None
+
+    if model_name == "lasso_no_feature_selection":
+        run_lasso_no_feature_selection()
+    elif model_name == "lasso_selectkbest":
+        run_lasso_selectkbest()
+    elif model_name == "lasso_bootstrapped_selectkbest":
+        run_lasso_bootstrapped_selectkbest()
+    elif model_name == "lasso_stability_selection":
+        run_lasso_stability_selection()
+    elif model_name == "xgboost_selectkbest":
+        run_xgboost_selectkbest()
+    elif model_name == "xgboost":
+        run_xgboost()
+    elif model_name == "randomforest_selectkbest":
+        run_randomforest_selectkbest()
+    elif model_name == "randomforest_stability_selection":
+        run_randomforest_stability_selection()
+    elif model_name == "svc_selectkbest":
+        run_svc_selectkbest()
+    else:
+        print("Please provide a valid model name.")

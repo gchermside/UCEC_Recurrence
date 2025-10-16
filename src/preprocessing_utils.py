@@ -453,27 +453,20 @@ class MrnaPreprocessor(BasePreprocessor):
         selection_freq = feature_counts / self.n_boots
         selected_features = selection_freq[selection_freq >= self.stability_threshold].index.tolist()
 
-        print(f"Stability selection: kept {len(selected_features)} / {X.shape[1]} features "
-              f"({self.stability_threshold*100:.0f}% stability threshold)"
-              f"Used {self.n_boots} boots")
-
         self.selection_freq_ = selection_freq
         return X[selected_features], list(set(X.columns) - set(selected_features))
 
     def fit(self, X, y=None):
-        print("fitting Mrna Preprocessor, re_run_pruning =", self.re_run_pruning)
         removed = []
 
         # Step 1. Drop columns with too many nulls
         high_null_cols = [c for c in X.columns if X[c].isna().sum() > len(X) * self.max_null_frac]
         removed.extend(high_null_cols)
         X_temp = X.drop(columns=high_null_cols, errors="ignore")
-        print(f"Dropped {len(high_null_cols)} columns with >{self.max_null_frac*100}% nulls from mrna")
 
         # Step 2. Drop highly uniform columns
         X_temp, uniform_cols = self._drop_highly_uniform_columns(X_temp)
         removed.extend(uniform_cols)
-        print(f"Dropped {len(uniform_cols)} highly uniform columns from mrna")
 
         # Step 3. Fill NaNs with median
         self.medians_ = X_temp.median().to_dict()
@@ -483,16 +476,12 @@ class MrnaPreprocessor(BasePreprocessor):
         low_var_cols = [c for c in X_temp.columns if X_temp[c].var() < self.var_thresh]
         X_temp = X_temp.drop(columns=low_var_cols, errors="ignore")
         removed.extend(low_var_cols)
-        print(f"Dropped {len(low_var_cols)} low variance columns (<{self.var_thresh}) from mrna")
 
         # Step 5. Prune correlated features
         if self.re_run_pruning:
-            print("self.re_run_pruning is", self.re_run_pruning)
             X_temp, correlated_genes = self._prune_correlated_features(X_temp)
             joblib.dump(correlated_genes, self.correlated_genes_path)
-            print("saving correlated genes to ", self.correlated_genes_path)
             removed.extend(correlated_genes)
-            print(f"Dropped {len(correlated_genes)} correlated genes (>{self.corr_thresh} correlation) from mrna")
         else:
             correlated_genes = joblib.load(self.correlated_genes_path)
             X_temp = X_temp.drop(columns=correlated_genes, errors="ignore")
@@ -514,7 +503,6 @@ class MrnaPreprocessor(BasePreprocessor):
     def transform(self, X):
         # Drop known removed cols
         X = X.drop(columns=[c for c in self.removed_cols_ if c in X.columns], errors="ignore")
-        print("dropping", len(self.removed_cols_), "columns total from mrna")
 
         # Fill NaNs with median
         X = X.fillna(self.medians_)
@@ -548,7 +536,6 @@ class MutationPreprocessor(BasePreprocessor):
         self.selection_freq_ = None
 
     def fit(self, X, y=None):
-        print("fitting Mutation Preprocessor")
         removed = []
 
         # Step 1. Convert counts to binary mutation 0 or 1(at least one mutation)
@@ -559,12 +546,10 @@ class MutationPreprocessor(BasePreprocessor):
         high_null_cols = [c for c in X_temp.columns if X_temp[c].isna().sum() > len(X_temp) * self.max_null_frac]
         removed.extend(high_null_cols)
         X_temp = X_temp.drop(columns=high_null_cols, errors="ignore")
-        print(f"Dropped {len(high_null_cols)} columns with >{self.max_null_frac*100}% nulls from mutation data")
 
         # Step 3. Drop highly uniform columns
         X_temp, uniform_cols = self._drop_highly_uniform_columns(X_temp)
         removed.extend(uniform_cols)
-        print(f"Dropped {len(uniform_cols)} highly uniform columns from mutation data")
 
         # Step 4. Fill NaNs with median
         self.medians_ = X_temp.median().to_dict()
@@ -579,7 +564,6 @@ class MutationPreprocessor(BasePreprocessor):
     def transform(self, X):
         # Drop known removed cols
         X = X.drop(columns=[c for c in self.removed_cols_ if c in X.columns], errors="ignore")
-        print("dropping", len(self.removed_cols_), "columns total from mutation data")
 
         # Fill NaNs with median
         X = X.fillna(self.medians_)
@@ -651,9 +635,6 @@ class BootstrappedSelectKBest(BaseEstimator, TransformerMixin):
         # Keep only stable features
         self.selected_features_ = self.feature_freq_[self.feature_freq_ >= self.threshold].index.tolist()
 
-        # print out how many survived
-        print(f"[BootstrappedSelectKBest] Kept {len(self.selected_features_)} features "
-              f"(threshold={self.threshold}, k={self.k}, bootstraps={self.n_bootstrap})")
         return self
 
     def transform(self, X):
@@ -710,10 +691,6 @@ class StabilitySelection(BaseEstimator, TransformerMixin):
         # Compute frequency of selection
         self.selection_freq_ = feature_counts / self.n_boots
         self.selected_features_ = self.selection_freq_[self.selection_freq_ >= self.stability_threshold].index.tolist()
-
-        print(f"[StabilitySelection] Kept {len(self.selected_features_)} / {X.shape[1]} features "
-              f"(threshold={self.stability_threshold}, boots={self.n_boots}, alpha={self.fpr_alpha})")
-
         return self
 
     def transform(self, X):
