@@ -84,9 +84,9 @@ LITERATURE_GENES = set([
 
 USE_STABILITY_SELECTION = False # so far, does not help
 # Stability selection parameters
-N_BOOTS_FPR = 100
-FPR_ALPHA = 0.1
-STABILITY_THRESHOLD_FPR = 0.85
+N_BOOTS_FPR = 50
+FPR_ALPHA = 0.01
+STABILITY_THRESHOLD_FPR = 0.9
 
 # Bootstrapped SelectKBest parameters
 K = 500
