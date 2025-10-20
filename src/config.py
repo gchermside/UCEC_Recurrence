@@ -101,3 +101,11 @@ MUTATION_UNIFORM_THRESH = 0.99
 
 # Experiment metadata
 SEED = 100
+
+# Neural Network Hyperparameters --------------------------------------------------------------
+NUM_EPOCHS = 100
+PATIENCE = 40
+LEARNING_RATE = 1e-4
+BATCH_SIZE = 32
+HIDDEN_DIM = 64
+DROPOUT = 0
