@@ -156,7 +156,6 @@ def generate_recurrence_labels(treatment_file, status_file, clinical_file):
     
     return label_series
 
-
 def drop_patients_missing_data(clinical_df, mrna_df, mutation_df, labels):
     """
     Drops patients not shared across clinical_df, mrna_df, mutation_df, and labels.
@@ -299,7 +298,7 @@ class ClinicalPreprocessor(BasePreprocessor):
         removed.extend(cols_to_remove)
 
         # --- Step 4. Drop all identified columns
-        X = X.drop(columns=removed, errors="ignore")
+        X = X.drop(columns=removed)
         
         # --- Step 5. Fill NaNs
         # Numerical → median
@@ -324,7 +323,7 @@ class ClinicalPreprocessor(BasePreprocessor):
     
     def transform(self, X):
         # Drop removed cols
-        X = X.drop(columns=[c for c in self.removed_cols_ if c in X.columns], errors="ignore")
+        X = X.drop(columns=[c for c in self.removed_cols_ if c in X.columns])
         
         # --- Fill NaNs using training fill values
         numeric_cols = X.select_dtypes(include=['number']).columns

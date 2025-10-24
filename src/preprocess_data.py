@@ -26,6 +26,10 @@ clinical_test = X_test[clinical_cols]
 mrna_test = X_test[mrna_cols]
 mutation_test = X_test[mutation_cols]
 
+print(mrna_train.shape)
+print(mutation_train.shape)
+print(clinical_train.shape)
+
 # === Initialize and fit each preprocessor on training data ===
 clinical_prep = ClinicalPreprocessorWrapper(
     cols_to_remove=config.CLINICAL_COLS_TO_REMOVE,
@@ -41,7 +45,7 @@ mrna_prep = MrnaPreprocessorWrapper(
     re_run_pruning=config.RE_RUN_PRUNING,
     literature_genes=config.LITERATURE_GENES,
     correlated_genes_path=config.CORRELATED_GENES_PATH,
-    use_stability_selection=True, # NOTE: For this run, we are going to stability selection
+    use_stability_selection=config.USE_STABILITY_SELECTION, # NOTE: For this run, we are going to stability selection
     n_boots=config.N_BOOTS_FPR, # NOTE: might want to experiment with these values, they are set pretty strict right now and I'm not sure that is good for pytorch
     fpr_alpha=0.2, #FIXME: put back to config
     stability_threshold=0.75, # FIXME: put this back to config
@@ -70,22 +74,38 @@ mutation_train = mutation_prep.transform(mutation_train)
 mutation_val = mutation_prep.transform(mutation_val)
 mutation_test = mutation_prep.transform(mutation_test)
 
-stability_selection = StabilitySelection(n_boots=config.N_BOOTS_FPR, 
-                                         fpr_alpha=config.FPR_ALPHA, 
-                                         stability_threshold=config.STABILITY_THRESHOLD_FPR, 
-                                         random_state=config.SEED)
-stability_selection.fit(mutation_train, y_train)
-mutation_train = stability_selection.transform(mutation_train)
-mutation_val = stability_selection.transform(mutation_val)
-mutation_test = stability_selection.transform(mutation_test)
+
+# stability_selection_mrna = StabilitySelection(n_boots=config.N_BOOTS_FPR,
+#                                          fpr_alpha=0.02,
+#                                          stability_threshold=0.80,
+#                                          random_state=config.SEED)
+
+# stability_selection_mrna.fit(mrna_train, y_train)
+# mrna_train = stability_selection_mrna.transform(mrna_train)
+# mrna_val = stability_selection_mrna.transform(mrna_val)
+# mrna_test = stability_selection_mrna.transform(mrna_test)
+
+# stability_selection_mutation = StabilitySelection(n_boots=config.N_BOOTS_FPR,
+#                                          fpr_alpha=0.05,
+#                                          stability_threshold=0.75,
+#                                          random_state=config.SEED)
+
+# stability_selection_mutation.fit(mutation_train, y_train)
+# mutation_train = stability_selection_mutation.transform(mutation_train)
+# mutation_val = stability_selection_mutation.transform(mutation_val)
+# mutation_test = stability_selection_mutation.transform(mutation_test)
+
+print(mrna_train.shape)
+print(mutation_train.shape)
+print(clinical_train.shape)
 
 
 # === Making directory ===
-base_dir = "../preprocessed_data/stability_selection_all"
+base_dir = "../preprocessed_data/no_feature_selection"
 for split in ["train", "val", "test"]:
     os.makedirs(f"{base_dir}/{split}", exist_ok=True)
 
-# === Save all 12 datasets ===
+# # === Save all 12 datasets ===
 joblib.dump(clinical_train, f"{base_dir}/train/clinical.pkl")
 joblib.dump(mrna_train, f"{base_dir}/train/mrna.pkl")
 joblib.dump(mutation_train, f"{base_dir}/train/mutation.pkl")
