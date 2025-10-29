@@ -647,45 +647,132 @@ class BootstrappedSelectKBest(BaseEstimator, TransformerMixin):
         return [col in self.selected_features_ for col in self.feature_freq_.index]
 
 
-class StabilitySelection(BaseEstimator, TransformerMixin):
-    def __init__(self, n_boots=config.N_BOOTS_FPR, fpr_alpha=config.FPR_ALPHA, stability_threshold=config.STABILITY_THRESHOLD_FPR, random_state=config.SEED):
-        """
-        Bootstrap stability-based feature selection using SelectFpr.
+# class StabilitySelection(BaseEstimator, TransformerMixin):
+#     def __init__(self, n_boots=config.N_BOOTS_FPR, fpr_alpha=config.FPR_ALPHA, stability_threshold=config.STABILITY_THRESHOLD_FPR, random_state=config.SEED):
+#         """
+#         Bootstrap stability-based feature selection using SelectFpr.
 
-        Parameters
-        ----------
-        n_boots : int
-            Number of bootstrap samples.
-        fpr_alpha : float
-            Alpha level for SelectFpr.
-        stability_threshold : float (0-1)
-            Minimum fraction of bootstraps a feature must appear in to be kept.
-        random_state : int, optional
-            Random seed for reproducibility.
+#         Parameters
+#         ----------
+#         n_boots : int
+#             Number of bootstrap samples.
+#         fpr_alpha : float
+#             Alpha level for SelectFpr.
+#         stability_threshold : float (0-1)
+#             Minimum fraction of bootstraps a feature must appear in to be kept.
+#         random_state : int, optional
+#             Random seed for reproducibility.
+#         """
+#         self.n_boots = n_boots
+#         self.fpr_alpha = fpr_alpha
+#         self.stability_threshold = stability_threshold
+#         self.random_state = random_state
+
+#     def fit(self, X, y):
+#         np.random.seed(self.random_state)
+#         feature_counts = pd.Series(0, index=X.columns, dtype=int)
+
+#         for i in range(self.n_boots):
+#             # Bootstrap sample
+#             X_boot, y_boot = resample(
+#                 X, y,
+#                 stratify=y,
+#                 n_samples=len(y),
+#                 replace=True,
+#                 random_state=(self.random_state + i) if self.random_state is not None else None
+#             )
+#             selector = SelectFpr(score_func=f_classif, alpha=self.fpr_alpha)
+#             selector.fit(X_boot, y_boot)
+
+#             selected = X_boot.columns[selector.get_support()]
+#             feature_counts[selected] += 1
+
+#         # Compute frequency of selection
+#         self.selection_freq_ = feature_counts / self.n_boots
+#         self.selected_features_ = self.selection_freq_[self.selection_freq_ >= self.stability_threshold].index.tolist()
+#         return self
+
+#     def transform(self, X):
+#         return X[self.selected_features_]
+
+#     def get_support(self):
+#         """Boolean mask of selected features."""
+#         return [col in self.selected_features_ for col in self.selection_freq_.index]
+
+
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.feature_selection import SelectFpr, f_classif, chi2
+from sklearn.utils import resample
+import pandas as pd
+import numpy as np
+
+class StabilitySelection(BaseEstimator, TransformerMixin):
+    def __init__(self, n_boots=100, fpr_alpha=0.05, stability_threshold=0.5, random_state=None):
+        """
+        Stability-based feature selection with automatic test type detection.
+
+        - chi2 for categorical/binary features (nonnegative)
+        - f_classif for continuous numeric features
         """
         self.n_boots = n_boots
         self.fpr_alpha = fpr_alpha
         self.stability_threshold = stability_threshold
         self.random_state = random_state
 
-    def fit(self, X, y):
-        np.random.seed(self.random_state)
-        feature_counts = pd.Series(0, index=X.columns, dtype=int)
+    def _split_feature_types(self, X):
+        """Split columns into categorical (chi2) and numerical (f_classif)."""
+        cat_cols, num_cols = [], []
+        for col in X.columns:
+            vals = X[col].dropna().unique()
+            if X[col].dtype == bool or len(vals) <= 2:
+                cat_cols.append(col)
+            elif np.issubdtype(X[col].dtype, np.number):
+                num_cols.append(col)
+            else:
+                # fallback for object/string cols
+                cat_cols.append(col)
+        return cat_cols, num_cols
+
+    def _bootstrap_select(self, X, y, cols, score_func):
+        """Perform stability selection on a subset of features using given score_func."""
+        feature_counts = pd.Series(0, index=cols, dtype=int)
 
         for i in range(self.n_boots):
-            # Bootstrap sample
             X_boot, y_boot = resample(
-                X, y,
+                X[cols], y,
                 stratify=y,
                 n_samples=len(y),
                 replace=True,
                 random_state=(self.random_state + i) if self.random_state is not None else None
             )
-            selector = SelectFpr(score_func=f_classif, alpha=self.fpr_alpha)
-            selector.fit(X_boot, y_boot)
 
-            selected = X_boot.columns[selector.get_support()]
-            feature_counts[selected] += 1
+            # chi2 requires nonnegative values
+            if score_func == chi2:
+                X_boot = X_boot.clip(lower=0)
+
+            selector = SelectFpr(score_func=score_func, alpha=self.fpr_alpha)
+            try:
+                selector.fit(X_boot, y_boot)
+                selected = X_boot.columns[selector.get_support()]
+                feature_counts[selected] += 1
+            except Exception as e:
+                print(f"Skipping bootstrap {i} for {score_func.__name__}: {e}")
+                continue
+
+        return feature_counts
+
+    def fit(self, X, y):
+        np.random.seed(self.random_state)
+
+        # Split features by type
+        cat_cols, num_cols = self._split_feature_types(X)
+
+        # Run separate stability selection for categorical and numerical features
+        feature_counts = pd.Series(0, index=X.columns, dtype=int)
+        if cat_cols:
+            feature_counts[cat_cols] += self._bootstrap_select(X, y, cat_cols, chi2)
+        if num_cols:
+            feature_counts[num_cols] += self._bootstrap_select(X, y, num_cols, f_classif)
 
         # Compute frequency of selection
         self.selection_freq_ = feature_counts / self.n_boots
@@ -693,8 +780,8 @@ class StabilitySelection(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        return X[self.selected_features_]
+        return X.loc[:, X.columns.intersection(self.selected_features_)]
 
     def get_support(self):
-        """Boolean mask of selected features."""
+        """Boolean mask of selected features aligned with input order."""
         return [col in self.selected_features_ for col in self.selection_freq_.index]

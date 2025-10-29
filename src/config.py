@@ -103,9 +103,9 @@ MUTATION_UNIFORM_THRESH = 0.99
 SEED = 100
 
 # Neural Network Hyperparameters --------------------------------------------------------------
-NUM_EPOCHS = 100
+NUM_EPOCHS = 200
 PATIENCE = 40
 LEARNING_RATE = 1e-4
 BATCH_SIZE = 32
 HIDDEN_DIM = 64
-DROPOUT = 0.3
+DROPOUT = 0.0

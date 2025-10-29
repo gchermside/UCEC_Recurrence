@@ -75,25 +75,25 @@ mutation_val = mutation_prep.transform(mutation_val)
 mutation_test = mutation_prep.transform(mutation_test)
 
 
-# stability_selection_mrna = StabilitySelection(n_boots=config.N_BOOTS_FPR,
-#                                          fpr_alpha=0.02,
-#                                          stability_threshold=0.80,
-#                                          random_state=config.SEED)
+stability_selection_mrna = StabilitySelection(n_boots=config.N_BOOTS_FPR,
+                                         fpr_alpha=0.05,
+                                         stability_threshold=0.75,
+                                         random_state=config.SEED)
 
-# stability_selection_mrna.fit(mrna_train, y_train)
-# mrna_train = stability_selection_mrna.transform(mrna_train)
-# mrna_val = stability_selection_mrna.transform(mrna_val)
-# mrna_test = stability_selection_mrna.transform(mrna_test)
+stability_selection_mrna.fit(mrna_train, y_train)
+mrna_train = stability_selection_mrna.transform(mrna_train)
+mrna_val = stability_selection_mrna.transform(mrna_val)
+mrna_test = stability_selection_mrna.transform(mrna_test)
 
-# stability_selection_mutation = StabilitySelection(n_boots=config.N_BOOTS_FPR,
-#                                          fpr_alpha=0.05,
-#                                          stability_threshold=0.75,
-#                                          random_state=config.SEED)
+stability_selection_mutation = StabilitySelection(n_boots=config.N_BOOTS_FPR,
+                                         fpr_alpha=0.05,
+                                         stability_threshold=0.75,
+                                         random_state=config.SEED)
 
-# stability_selection_mutation.fit(mutation_train, y_train)
-# mutation_train = stability_selection_mutation.transform(mutation_train)
-# mutation_val = stability_selection_mutation.transform(mutation_val)
-# mutation_test = stability_selection_mutation.transform(mutation_test)
+stability_selection_mutation.fit(mutation_train, y_train)
+mutation_train = stability_selection_mutation.transform(mutation_train)
+mutation_val = stability_selection_mutation.transform(mutation_val)
+mutation_test = stability_selection_mutation.transform(mutation_test)
 
 print(mrna_train.shape)
 print(mutation_train.shape)
@@ -101,7 +101,7 @@ print(clinical_train.shape)
 
 
 # === Making directory ===
-base_dir = "../preprocessed_data/no_feature_selection"
+base_dir = "../preprocessed_data/some_feature_selection"
 for split in ["train", "val", "test"]:
     os.makedirs(f"{base_dir}/{split}", exist_ok=True)
 
@@ -120,3 +120,5 @@ joblib.dump(clinical_test, f"{base_dir}/test/clinical.pkl")
 joblib.dump(mrna_test, f"{base_dir}/test/mrna.pkl")
 joblib.dump(mutation_test, f"{base_dir}/test/mutation.pkl")
 joblib.dump(y_test, f"{base_dir}/test/labels.pkl")
+print("Preprocessed data saved successfully.")
+print("Using", os.cpu_count(), "CPUs")
