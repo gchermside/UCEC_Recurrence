@@ -45,10 +45,10 @@ mrna_prep = MrnaPreprocessorWrapper(
     re_run_pruning=config.RE_RUN_PRUNING,
     literature_genes=config.LITERATURE_GENES,
     correlated_genes_path=config.CORRELATED_GENES_PATH,
-    use_stability_selection=config.USE_STABILITY_SELECTION, # NOTE: For this run, we are going to stability selection
-    n_boots=config.N_BOOTS_FPR, # NOTE: might want to experiment with these values, they are set pretty strict right now and I'm not sure that is good for pytorch
-    fpr_alpha=0.2, #FIXME: put back to config
-    stability_threshold=0.75, # FIXME: put this back to config
+    use_stability_selection=config.USE_STABILITY_SELECTION,
+    n_boots=config.N_BOOTS_FPR,
+    fpr_alpha=config.FPR_ALPHA, #FIXME: put back to config
+    stability_threshold=config.STABILITY_THRESHOLD_FPR, # FIXME: put this back to config
     random_state=config.SEED,
 )
 mutation_prep = MutationPreprocessorWrapper(

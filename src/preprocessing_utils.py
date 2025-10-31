@@ -1,15 +1,26 @@
+#### Imports ######################################################
+
 import numpy as np
 import pandas as pd
-
+import os
 import joblib
+
 from sklearn.utils import resample
 from sklearn.feature_selection import SelectFpr, f_classif
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
 from sklearn.feature_selection import SelectKBest
 from sklearn.model_selection import train_test_split
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.feature_selection import SelectFpr, f_classif, chi2
+from sklearn.utils import resample
+
+from scipy.stats import chi2_contingency, mannwhitneyu
+from statsmodels.stats.multitest import multipletests
 
 import config
+
+#### Loading and Splitting Data ######################################################
 
 def load_clinical_data(clinical_file):
     clinical_df = pd.read_csv(clinical_file, sep="\t", comment="#", low_memory=False)
@@ -200,6 +211,96 @@ def drop_patients_missing_data(clinical_df, mrna_df, mutation_df, labels):
 
     return clinical_df_clean, mrna_df_clean, mutation_df_clean, labels_clean
 
+
+
+
+
+
+
+def stratified_split_with_balance_check(
+    df, y, clinical_cols, test_size=0.15, val_size=0.15,
+    max_attempts=100, p_thresh=0.01
+):
+    """
+    Split the dataset into train/val/test (70/15/15) stratified by y,
+    and ensure clinical features are balanced across splits.
+
+    A split is rejected if ANY clinical feature has p < p_thresh.
+    """
+
+    for attempt in range(max_attempts):
+        print("on attempt", attempt)
+        
+        # Step 1: split into train+val and test
+        X_trainval, X_test, y_trainval, y_test = train_test_split(
+            df, y, test_size=test_size, stratify=y, random_state=attempt
+        )
+
+        # Step 2: split trainval into train and val
+        rel_val_size = val_size / (1 - test_size)
+        X_train, X_val, y_train, y_val = train_test_split(
+            X_trainval, y_trainval, test_size=rel_val_size,
+            stratify=y_trainval, random_state=attempt
+        )
+
+        # Step 3: test for imbalance across splits for clinical features
+        p_values = []
+        reject_split = False
+
+        for feature in clinical_cols:
+            print("feature:", feature)
+
+            # Handle numeric features
+            if np.issubdtype(df[feature].dtype, np.number):
+                vals = [
+                    X_train[feature].dropna(),
+                    X_val[feature].dropna(),
+                    X_test[feature].dropna()
+                ]
+                pairs = [(0, 1), (0, 2), (1, 2)]
+                for (i, j) in pairs:
+                    if len(vals[i]) > 0 and len(vals[j]) > 0:
+                        if vals[i].nunique() > 1 or vals[j].nunique() > 1:
+                            try:
+                                _, p = mannwhitneyu(vals[i], vals[j], alternative='two-sided')
+                                print(f"  numerical ({i}-{j}) p =", p)
+                                p_values.append(p)
+                                if p < p_thresh:
+                                    reject_split = True
+                            except Exception as e:
+                                print(f"  numerical test failed ({i}-{j}):", e)
+
+            # Handle categorical features
+            else:
+                tmp = pd.concat([
+                    X_train.assign(split='train'),
+                    X_val.assign(split='val'),
+                    X_test.assign(split='test')
+                ])
+                contingency = pd.crosstab(tmp[feature], tmp['split'])
+                if contingency.shape[0] > 1 and contingency.shape[1] > 1:
+                    try:
+                        _, p, _, _ = chi2_contingency(contingency)
+                        print(f"  categorical p =", p)
+                        p_values.append(p)
+                        if p < p_thresh:
+                            reject_split = True
+                    except Exception as e:
+                        print("  categorical test failed:", e)
+                else:
+                    print("  categorical skipped (not enough variation)")
+
+        # Step 4: if any p < threshold, reject split
+        if not reject_split:
+            print(f"Balanced split achieved after {attempt+1} attempts.")
+            return X_train, X_val, X_test, y_train, y_val, y_test
+        else:
+            print(f"Rejected split {attempt+1} due to imbalance (min p = {min(p_values):.4g})")
+
+    print("Could not achieve balance after max attempts.")
+    return X_train, X_val, X_test, y_train, y_val, y_test
+
+
 def load_and_split_data(clinical_file=config.CLINICAL_DATA_PATH,
                         mrna_file=config.MRNA_DATA_PATH,
                         mutation_file=config.MUTATION_DATA_PATH,
@@ -227,15 +328,22 @@ def load_and_split_data(clinical_file=config.CLINICAL_DATA_PATH,
     mutation_cols = mutation_df.columns.tolist()
 
     full_df = clinical_df.join(mrna_df, how="inner").join(mutation_df, how="inner")
+    labels = labels.reindex(full_df.index)
 
-    X_train, X_temp, y_train, y_temp = train_test_split(
-        full_df, labels, test_size=0.30, random_state=random_state, stratify=labels
+
+    X_train, X_val, X_test, y_train, y_val, y_test = stratified_split_with_balance_check(
+        df=full_df,
+        y=labels,
+        clinical_cols=config.CLIN_COLS_TO_STRATIFY_ON,
+        test_size=0.15,
+        val_size=0.15,
+        max_attempts=100,
+        p_thresh=0.05
     )
-    X_val, X_test, y_val, y_test = train_test_split(
-        X_temp, y_temp, test_size=0.50, random_state=random_state, stratify=y_temp
-    )
+
     return (X_train, y_train, X_val, y_val, X_test, y_test, clinical_cols, mrna_cols, mutation_cols)
 
+#### Preprocessors ######################################################
 
 class BasePreprocessor:
     def __init__(self, max_null_frac=0.3, uniform_thresh=0.99):
@@ -597,6 +705,7 @@ class MutationPreprocessorWrapper(MutationPreprocessor, BaseEstimator, Transform
         check_is_fitted(self, "columns_")  # make sure fit() was called
         return np.array(self.columns_)  # or self.cleaned_columns_ if you store them
 
+#### Feature Selection ######################################################
 
 class BootstrappedSelectKBest(BaseEstimator, TransformerMixin):
     def __init__(self, k=config.K, n_bootstrap=config.N_BOOTS_KBEST, threshold=config.THRESHOLD_KBEST, random_state=None):
@@ -699,12 +808,6 @@ class BootstrappedSelectKBest(BaseEstimator, TransformerMixin):
 #         """Boolean mask of selected features."""
 #         return [col in self.selected_features_ for col in self.selection_freq_.index]
 
-
-from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.feature_selection import SelectFpr, f_classif, chi2
-from sklearn.utils import resample
-import pandas as pd
-import numpy as np
 
 class StabilitySelection(BaseEstimator, TransformerMixin):
     def __init__(self, n_boots=100, fpr_alpha=0.05, stability_threshold=0.5, random_state=None):

@@ -1,15 +1,26 @@
+#### Imports ######################################################
+
 import numpy as np
 import pandas as pd
-
+import os
 import joblib
+
 from sklearn.utils import resample
 from sklearn.feature_selection import SelectFpr, f_classif
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
 from sklearn.feature_selection import SelectKBest
-import config as config
 from sklearn.model_selection import train_test_split
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.feature_selection import SelectFpr, f_classif, chi2
+from sklearn.utils import resample
 
+from scipy.stats import chi2_contingency, mannwhitneyu
+from statsmodels.stats.multitest import multipletests
+
+import config
+
+#### Loading and Splitting Data ######################################################
 
 def load_clinical_data(clinical_file):
     clinical_df = pd.read_csv(clinical_file, sep="\t", comment="#", low_memory=False)
@@ -156,7 +167,6 @@ def generate_recurrence_labels(treatment_file, status_file, clinical_file):
     
     return label_series
 
-
 def drop_patients_missing_data(clinical_df, mrna_df, mutation_df, labels):
     """
     Drops patients not shared across clinical_df, mrna_df, mutation_df, and labels.
@@ -201,6 +211,96 @@ def drop_patients_missing_data(clinical_df, mrna_df, mutation_df, labels):
 
     return clinical_df_clean, mrna_df_clean, mutation_df_clean, labels_clean
 
+
+
+
+
+
+
+def stratified_split_with_balance_check(
+    df, y, clinical_cols, test_size=0.15, val_size=0.15,
+    max_attempts=100, p_thresh=0.01
+):
+    """
+    Split the dataset into train/val/test (70/15/15) stratified by y,
+    and ensure clinical features are balanced across splits.
+
+    A split is rejected if ANY clinical feature has p < p_thresh.
+    """
+
+    for attempt in range(max_attempts):
+        print("on attempt", attempt)
+        
+        # Step 1: split into train+val and test
+        X_trainval, X_test, y_trainval, y_test = train_test_split(
+            df, y, test_size=test_size, stratify=y, random_state=attempt
+        )
+
+        # Step 2: split trainval into train and val
+        rel_val_size = val_size / (1 - test_size)
+        X_train, X_val, y_train, y_val = train_test_split(
+            X_trainval, y_trainval, test_size=rel_val_size,
+            stratify=y_trainval, random_state=attempt
+        )
+
+        # Step 3: test for imbalance across splits for clinical features
+        p_values = []
+        reject_split = False
+
+        for feature in clinical_cols:
+            print("feature:", feature)
+
+            # Handle numeric features
+            if np.issubdtype(df[feature].dtype, np.number):
+                vals = [
+                    X_train[feature].dropna(),
+                    X_val[feature].dropna(),
+                    X_test[feature].dropna()
+                ]
+                pairs = [(0, 1), (0, 2), (1, 2)]
+                for (i, j) in pairs:
+                    if len(vals[i]) > 0 and len(vals[j]) > 0:
+                        if vals[i].nunique() > 1 or vals[j].nunique() > 1:
+                            try:
+                                _, p = mannwhitneyu(vals[i], vals[j], alternative='two-sided')
+                                print(f"  numerical ({i}-{j}) p =", p)
+                                p_values.append(p)
+                                if p < p_thresh:
+                                    reject_split = True
+                            except Exception as e:
+                                print(f"  numerical test failed ({i}-{j}):", e)
+
+            # Handle categorical features
+            else:
+                tmp = pd.concat([
+                    X_train.assign(split='train'),
+                    X_val.assign(split='val'),
+                    X_test.assign(split='test')
+                ])
+                contingency = pd.crosstab(tmp[feature], tmp['split'])
+                if contingency.shape[0] > 1 and contingency.shape[1] > 1:
+                    try:
+                        _, p, _, _ = chi2_contingency(contingency)
+                        print(f"  categorical p =", p)
+                        p_values.append(p)
+                        if p < p_thresh:
+                            reject_split = True
+                    except Exception as e:
+                        print("  categorical test failed:", e)
+                else:
+                    print("  categorical skipped (not enough variation)")
+
+        # Step 4: if any p < threshold, reject split
+        if not reject_split:
+            print(f"Balanced split achieved after {attempt+1} attempts.")
+            return X_train, X_val, X_test, y_train, y_val, y_test
+        else:
+            print(f"Rejected split {attempt+1} due to imbalance (min p = {min(p_values):.4g})")
+
+    print("Could not achieve balance after max attempts.")
+    return X_train, X_val, X_test, y_train, y_val, y_test
+
+
 def load_and_split_data(clinical_file=config.CLINICAL_DATA_PATH,
                         mrna_file=config.MRNA_DATA_PATH,
                         mutation_file=config.MUTATION_DATA_PATH,
@@ -228,15 +328,22 @@ def load_and_split_data(clinical_file=config.CLINICAL_DATA_PATH,
     mutation_cols = mutation_df.columns.tolist()
 
     full_df = clinical_df.join(mrna_df, how="inner").join(mutation_df, how="inner")
+    labels = labels.reindex(full_df.index)
 
-    X_train, X_temp, y_train, y_temp = train_test_split(
-        full_df, labels, test_size=0.30, random_state=random_state, stratify=labels
+
+    X_train, X_val, X_test, y_train, y_val, y_test = stratified_split_with_balance_check(
+        df=full_df,
+        y=labels,
+        clinical_cols=config.CLIN_COLS_TO_STRATIFY_ON,
+        test_size=0.15,
+        val_size=0.15,
+        max_attempts=100,
+        p_thresh=0.05
     )
-    X_val, X_test, y_val, y_test = train_test_split(
-        X_temp, y_temp, test_size=0.50, random_state=random_state, stratify=y_temp
-    )
+
     return (X_train, y_train, X_val, y_val, X_test, y_test, clinical_cols, mrna_cols, mutation_cols)
 
+#### Preprocessors ######################################################
 
 class BasePreprocessor:
     def __init__(self, max_null_frac=0.3, uniform_thresh=0.99):
@@ -299,7 +406,7 @@ class ClinicalPreprocessor(BasePreprocessor):
         removed.extend(cols_to_remove)
 
         # --- Step 4. Drop all identified columns
-        X = X.drop(columns=removed, errors="ignore")
+        X = X.drop(columns=removed)
         
         # --- Step 5. Fill NaNs
         # Numerical → median
@@ -324,7 +431,7 @@ class ClinicalPreprocessor(BasePreprocessor):
     
     def transform(self, X):
         # Drop removed cols
-        X = X.drop(columns=[c for c in self.removed_cols_ if c in X.columns], errors="ignore")
+        X = X.drop(columns=[c for c in self.removed_cols_ if c in X.columns])
         
         # --- Fill NaNs using training fill values
         numeric_cols = X.select_dtypes(include=['number']).columns
@@ -453,27 +560,20 @@ class MrnaPreprocessor(BasePreprocessor):
         selection_freq = feature_counts / self.n_boots
         selected_features = selection_freq[selection_freq >= self.stability_threshold].index.tolist()
 
-        print(f"Stability selection: kept {len(selected_features)} / {X.shape[1]} features "
-              f"({self.stability_threshold*100:.0f}% stability threshold)"
-              f"Used {self.n_boots} boots")
-
         self.selection_freq_ = selection_freq
         return X[selected_features], list(set(X.columns) - set(selected_features))
 
     def fit(self, X, y=None):
-        print("fitting Mrna Preprocessor, re_run_pruning =", self.re_run_pruning)
         removed = []
 
         # Step 1. Drop columns with too many nulls
         high_null_cols = [c for c in X.columns if X[c].isna().sum() > len(X) * self.max_null_frac]
         removed.extend(high_null_cols)
         X_temp = X.drop(columns=high_null_cols, errors="ignore")
-        print(f"Dropped {len(high_null_cols)} columns with >{self.max_null_frac*100}% nulls from mrna")
 
         # Step 2. Drop highly uniform columns
         X_temp, uniform_cols = self._drop_highly_uniform_columns(X_temp)
         removed.extend(uniform_cols)
-        print(f"Dropped {len(uniform_cols)} highly uniform columns from mrna")
 
         # Step 3. Fill NaNs with median
         self.medians_ = X_temp.median().to_dict()
@@ -483,16 +583,12 @@ class MrnaPreprocessor(BasePreprocessor):
         low_var_cols = [c for c in X_temp.columns if X_temp[c].var() < self.var_thresh]
         X_temp = X_temp.drop(columns=low_var_cols, errors="ignore")
         removed.extend(low_var_cols)
-        print(f"Dropped {len(low_var_cols)} low variance columns (<{self.var_thresh}) from mrna")
 
         # Step 5. Prune correlated features
         if self.re_run_pruning:
-            print("self.re_run_pruning is", self.re_run_pruning)
             X_temp, correlated_genes = self._prune_correlated_features(X_temp)
             joblib.dump(correlated_genes, self.correlated_genes_path)
-            print("saving correlated genes to ", self.correlated_genes_path)
             removed.extend(correlated_genes)
-            print(f"Dropped {len(correlated_genes)} correlated genes (>{self.corr_thresh} correlation) from mrna")
         else:
             correlated_genes = joblib.load(self.correlated_genes_path)
             X_temp = X_temp.drop(columns=correlated_genes, errors="ignore")
@@ -514,7 +610,6 @@ class MrnaPreprocessor(BasePreprocessor):
     def transform(self, X):
         # Drop known removed cols
         X = X.drop(columns=[c for c in self.removed_cols_ if c in X.columns], errors="ignore")
-        print("dropping", len(self.removed_cols_), "columns total from mrna")
 
         # Fill NaNs with median
         X = X.fillna(self.medians_)
@@ -548,7 +643,6 @@ class MutationPreprocessor(BasePreprocessor):
         self.selection_freq_ = None
 
     def fit(self, X, y=None):
-        print("fitting Mutation Preprocessor")
         removed = []
 
         # Step 1. Convert counts to binary mutation 0 or 1(at least one mutation)
@@ -559,12 +653,10 @@ class MutationPreprocessor(BasePreprocessor):
         high_null_cols = [c for c in X_temp.columns if X_temp[c].isna().sum() > len(X_temp) * self.max_null_frac]
         removed.extend(high_null_cols)
         X_temp = X_temp.drop(columns=high_null_cols, errors="ignore")
-        print(f"Dropped {len(high_null_cols)} columns with >{self.max_null_frac*100}% nulls from mutation data")
 
         # Step 3. Drop highly uniform columns
         X_temp, uniform_cols = self._drop_highly_uniform_columns(X_temp)
         removed.extend(uniform_cols)
-        print(f"Dropped {len(uniform_cols)} highly uniform columns from mutation data")
 
         # Step 4. Fill NaNs with median
         self.medians_ = X_temp.median().to_dict()
@@ -579,7 +671,6 @@ class MutationPreprocessor(BasePreprocessor):
     def transform(self, X):
         # Drop known removed cols
         X = X.drop(columns=[c for c in self.removed_cols_ if c in X.columns], errors="ignore")
-        print("dropping", len(self.removed_cols_), "columns total from mutation data")
 
         # Fill NaNs with median
         X = X.fillna(self.medians_)
@@ -614,6 +705,7 @@ class MutationPreprocessorWrapper(MutationPreprocessor, BaseEstimator, Transform
         check_is_fitted(self, "columns_")  # make sure fit() was called
         return np.array(self.columns_)  # or self.cleaned_columns_ if you store them
 
+#### Feature Selection ######################################################
 
 class BootstrappedSelectKBest(BaseEstimator, TransformerMixin):
     def __init__(self, k=config.K, n_bootstrap=config.N_BOOTS_KBEST, threshold=config.THRESHOLD_KBEST, random_state=None):
@@ -651,9 +743,6 @@ class BootstrappedSelectKBest(BaseEstimator, TransformerMixin):
         # Keep only stable features
         self.selected_features_ = self.feature_freq_[self.feature_freq_ >= self.threshold].index.tolist()
 
-        # print out how many survived
-        print(f"[BootstrappedSelectKBest] Kept {len(self.selected_features_)} features "
-              f"(threshold={self.threshold}, k={self.k}, bootstraps={self.n_bootstrap})")
         return self
 
     def transform(self, X):
@@ -667,58 +756,135 @@ class BootstrappedSelectKBest(BaseEstimator, TransformerMixin):
         return [col in self.selected_features_ for col in self.feature_freq_.index]
 
 
-class StabilitySelection(BaseEstimator, TransformerMixin):
-    def __init__(self, n_boots=config.N_BOOTS_FPR, fpr_alpha=config.FPR_ALPHA, stability_threshold=config.STABILITY_THRESHOLD_FPR, random_state=config.SEED):
-        """
-        Bootstrap stability-based feature selection using SelectFpr.
+# class StabilitySelection(BaseEstimator, TransformerMixin):
+#     def __init__(self, n_boots=config.N_BOOTS_FPR, fpr_alpha=config.FPR_ALPHA, stability_threshold=config.STABILITY_THRESHOLD_FPR, random_state=config.SEED):
+#         """
+#         Bootstrap stability-based feature selection using SelectFpr.
 
-        Parameters
-        ----------
-        n_boots : int
-            Number of bootstrap samples.
-        fpr_alpha : float
-            Alpha level for SelectFpr.
-        stability_threshold : float (0-1)
-            Minimum fraction of bootstraps a feature must appear in to be kept.
-        random_state : int, optional
-            Random seed for reproducibility.
+#         Parameters
+#         ----------
+#         n_boots : int
+#             Number of bootstrap samples.
+#         fpr_alpha : float
+#             Alpha level for SelectFpr.
+#         stability_threshold : float (0-1)
+#             Minimum fraction of bootstraps a feature must appear in to be kept.
+#         random_state : int, optional
+#             Random seed for reproducibility.
+#         """
+#         self.n_boots = n_boots
+#         self.fpr_alpha = fpr_alpha
+#         self.stability_threshold = stability_threshold
+#         self.random_state = random_state
+
+#     def fit(self, X, y):
+#         np.random.seed(self.random_state)
+#         feature_counts = pd.Series(0, index=X.columns, dtype=int)
+
+#         for i in range(self.n_boots):
+#             # Bootstrap sample
+#             X_boot, y_boot = resample(
+#                 X, y,
+#                 stratify=y,
+#                 n_samples=len(y),
+#                 replace=True,
+#                 random_state=(self.random_state + i) if self.random_state is not None else None
+#             )
+#             selector = SelectFpr(score_func=f_classif, alpha=self.fpr_alpha)
+#             selector.fit(X_boot, y_boot)
+
+#             selected = X_boot.columns[selector.get_support()]
+#             feature_counts[selected] += 1
+
+#         # Compute frequency of selection
+#         self.selection_freq_ = feature_counts / self.n_boots
+#         self.selected_features_ = self.selection_freq_[self.selection_freq_ >= self.stability_threshold].index.tolist()
+#         return self
+
+#     def transform(self, X):
+#         return X[self.selected_features_]
+
+#     def get_support(self):
+#         """Boolean mask of selected features."""
+#         return [col in self.selected_features_ for col in self.selection_freq_.index]
+
+
+class StabilitySelection(BaseEstimator, TransformerMixin):
+    def __init__(self, n_boots=100, fpr_alpha=0.05, stability_threshold=0.5, random_state=None):
+        """
+        Stability-based feature selection with automatic test type detection.
+
+        - chi2 for categorical/binary features (nonnegative)
+        - f_classif for continuous numeric features
         """
         self.n_boots = n_boots
         self.fpr_alpha = fpr_alpha
         self.stability_threshold = stability_threshold
         self.random_state = random_state
 
-    def fit(self, X, y):
-        np.random.seed(self.random_state)
-        feature_counts = pd.Series(0, index=X.columns, dtype=int)
+    def _split_feature_types(self, X):
+        """Split columns into categorical (chi2) and numerical (f_classif)."""
+        cat_cols, num_cols = [], []
+        for col in X.columns:
+            vals = X[col].dropna().unique()
+            if X[col].dtype == bool or len(vals) <= 2:
+                cat_cols.append(col)
+            elif np.issubdtype(X[col].dtype, np.number):
+                num_cols.append(col)
+            else:
+                # fallback for object/string cols
+                cat_cols.append(col)
+        return cat_cols, num_cols
+
+    def _bootstrap_select(self, X, y, cols, score_func):
+        """Perform stability selection on a subset of features using given score_func."""
+        feature_counts = pd.Series(0, index=cols, dtype=int)
 
         for i in range(self.n_boots):
-            # Bootstrap sample
             X_boot, y_boot = resample(
-                X, y,
+                X[cols], y,
                 stratify=y,
                 n_samples=len(y),
                 replace=True,
                 random_state=(self.random_state + i) if self.random_state is not None else None
             )
-            selector = SelectFpr(score_func=f_classif, alpha=self.fpr_alpha)
-            selector.fit(X_boot, y_boot)
 
-            selected = X_boot.columns[selector.get_support()]
-            feature_counts[selected] += 1
+            # chi2 requires nonnegative values
+            if score_func == chi2:
+                X_boot = X_boot.clip(lower=0)
+
+            selector = SelectFpr(score_func=score_func, alpha=self.fpr_alpha)
+            try:
+                selector.fit(X_boot, y_boot)
+                selected = X_boot.columns[selector.get_support()]
+                feature_counts[selected] += 1
+            except Exception as e:
+                print(f"Skipping bootstrap {i} for {score_func.__name__}: {e}")
+                continue
+
+        return feature_counts
+
+    def fit(self, X, y):
+        np.random.seed(self.random_state)
+
+        # Split features by type
+        cat_cols, num_cols = self._split_feature_types(X)
+
+        # Run separate stability selection for categorical and numerical features
+        feature_counts = pd.Series(0, index=X.columns, dtype=int)
+        if cat_cols:
+            feature_counts[cat_cols] += self._bootstrap_select(X, y, cat_cols, chi2)
+        if num_cols:
+            feature_counts[num_cols] += self._bootstrap_select(X, y, num_cols, f_classif)
 
         # Compute frequency of selection
         self.selection_freq_ = feature_counts / self.n_boots
         self.selected_features_ = self.selection_freq_[self.selection_freq_ >= self.stability_threshold].index.tolist()
-
-        print(f"[StabilitySelection] Kept {len(self.selected_features_)} / {X.shape[1]} features "
-              f"(threshold={self.stability_threshold}, boots={self.n_boots}, alpha={self.fpr_alpha})")
-
         return self
 
     def transform(self, X):
-        return X[self.selected_features_]
+        return X.loc[:, X.columns.intersection(self.selected_features_)]
 
     def get_support(self):
-        """Boolean mask of selected features."""
+        """Boolean mask of selected features aligned with input order."""
         return [col in self.selected_features_ for col in self.selection_freq_.index]
