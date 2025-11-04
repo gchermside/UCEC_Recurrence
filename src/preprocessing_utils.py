@@ -212,14 +212,9 @@ def drop_patients_missing_data(clinical_df, mrna_df, mutation_df, labels):
     return clinical_df_clean, mrna_df_clean, mutation_df_clean, labels_clean
 
 
-
-
-
-
-
 def stratified_split_with_balance_check(
-    df, y, clinical_cols, test_size=0.15, val_size=0.15,
-    max_attempts=100, p_thresh=0.01
+    df, y, clinical_cols, test_size=config.TEST_SIZE, val_size=config.VAL_SIZE,
+    max_attempts=config.STRATIFICATION_MAX_ATTEMPTS, p_thresh=config.P_VALUE_STRATIFICATION, random_state=config.SEED
 ):
     """
     Split the dataset into train/val/test (70/15/15) stratified by y,
@@ -233,7 +228,7 @@ def stratified_split_with_balance_check(
         
         # Step 1: split into train+val and test
         X_trainval, X_test, y_trainval, y_test = train_test_split(
-            df, y, test_size=test_size, stratify=y, random_state=attempt
+            df, y, test_size=test_size, stratify=y, random_state=(random_state + attempt)
         )
 
         # Step 2: split trainval into train and val
@@ -306,8 +301,11 @@ def load_and_split_data(clinical_file=config.CLINICAL_DATA_PATH,
                         mutation_file=config.MUTATION_DATA_PATH,
                         treatment_file=config.TREATMENT_DATA_PATH,
                         status_file=config.STATUS_DATA_PATH,
-                        test_size=0.15,
-                        val_size=0.15,
+                        clin_cols_to_stratify_on=config.CLIN_COLS_TO_STRATIFY_ON,
+                        test_size=config.TEST_SIZE,
+                        val_size=config.VAL_SIZE,
+                        max_attempts=config.STRATIFICATION_MAX_ATTEMPTS,
+                        p_thresh=config.P_VALUE_STRATIFICATION,
                         random_state=config.SEED):
     """loads data, generates labels, drops patients missing from any dataset, 
     and splits into train/validation/and test sets.
@@ -334,11 +332,12 @@ def load_and_split_data(clinical_file=config.CLINICAL_DATA_PATH,
     X_train, X_val, X_test, y_train, y_val, y_test = stratified_split_with_balance_check(
         df=full_df,
         y=labels,
-        clinical_cols=config.CLIN_COLS_TO_STRATIFY_ON,
-        test_size=0.15,
-        val_size=0.15,
-        max_attempts=100,
-        p_thresh=0.05
+        clinical_cols=clin_cols_to_stratify_on,
+        test_size=test_size,
+        val_size=val_size,
+        max_attempts=max_attempts,
+        p_thresh=p_thresh,
+        random_state=random_state
     )
 
     return (X_train, y_train, X_val, y_val, X_test, y_test, clinical_cols, mrna_cols, mutation_cols)
