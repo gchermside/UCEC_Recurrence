@@ -269,6 +269,7 @@ def run_kfold_gridsearch_with_preprocessing(
                 return DataLoader(ds, batch_size=config.BATCH_SIZE, shuffle=shuffle)
             if feature_selection == "stability_selection":
                 # ===# --- Stability selection for mRNA ---
+                print("Applying stability selection for mRNA...")
                 mrna_ss_params = {
                     'n_boots': param_dict.get('mrna_n_boots', config.N_BOOTS_FPR),
                     'fpr_alpha': param_dict.get('mrna_fpr_alpha', config.FPR_ALPHA),
@@ -356,17 +357,17 @@ def run_kfold_gridsearch_with_preprocessing(
 
 
 param_grid = {
-    'dropout': [0, 0.2],
+    'dropout': [0],
     'hidden_dim': [32, 64, 128],
     'lr': [1e-3, 1e-4, 1e-5],
     # mRNA stability selection hyperparams
-    # 'mrna_n_boots': [50],
-    # 'mrna_fpr_alpha': [0.05],
-    # 'mrna_stability_threshold': [0, 0.75],
-    # # Mutation stability selection hyperparams
-    # 'mut_n_boots': [50],
-    # 'mut_fpr_alpha': [0.05],
-    # 'mut_stability_threshold': [0, 0.75]
+    'mrna_n_boots': [50],
+    'mrna_fpr_alpha': [0.01, 0.05, 0.1],
+    'mrna_stability_threshold': [0.65, 0.75, 0.85],
+    # Mutation stability selection hyperparams
+    'mut_n_boots': [50],
+    'mut_fpr_alpha': [0.01, 0.05, 0.1],
+    'mut_stability_threshold': [0.65, 0.75, 0.85]
 }
 
 X_train = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "X_train.joblib"))
@@ -408,6 +409,6 @@ if __name__ == "__main__":
     print("BEST HYPERPARAMETERS", best_hyperparams)
     
     # Save results summary
-    with open("gridsearch_results_summary_no_feature_selection.pkl", "wb") as f:
+    with open("gridsearch_results_summary_satability_selection.pkl", "wb") as f:
         pickle.dump(results_summary, f)
     

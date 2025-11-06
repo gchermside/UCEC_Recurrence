@@ -109,8 +109,8 @@ STRATIFICATION_MAX_ATTEMPTS = 100
 
 
 # Neural Network Hyperparameters --------------------------------------------------------------
-NUM_EPOCHS = 200
-PATIENCE = 40
+NUM_EPOCHS = 1000
+PATIENCE = 50
 LEARNING_RATE = 1e-4
 BATCH_SIZE = 32
 HIDDEN_DIM = 64
