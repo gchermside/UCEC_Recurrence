@@ -101,7 +101,7 @@ print(clinical_train.shape)
 
 
 # === Making directory ===
-base_dir = "../preprocessed_data/balanced_data_with_stability_selection"
+base_dir = "../preprocessed_data/balanced_data_no_feature_selection"
 for split in ["train", "val", "test"]:
     os.makedirs(f"{base_dir}/{split}", exist_ok=True)
 

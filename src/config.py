@@ -3,7 +3,7 @@
 
 # Directories ---------------------------------------------------------------------------
 DATA_DIR = '../preprocessed_data/'
-SPLIT_DATA_DIR = "../split_data_balanced/"
+SPLIT_DATA_DIR = "../split_data/"
 MODEL_DIR = '../models/'
 
 # Data file paths ------------------------------------------------------------------------
@@ -110,7 +110,7 @@ STRATIFICATION_MAX_ATTEMPTS = 100
 
 # Neural Network Hyperparameters --------------------------------------------------------------
 NUM_EPOCHS = 1000
-PATIENCE = 50
+PATIENCE = 100
 LEARNING_RATE = 1e-4
 BATCH_SIZE = 32
 HIDDEN_DIM = 64

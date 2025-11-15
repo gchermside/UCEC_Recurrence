@@ -3,7 +3,7 @@
 
 # Directories ---------------------------------------------------------------------------
 DATA_DIR = '../preprocessed_data/'
-SPLIT_DATA_DIR = "../split_data_balanced/"
+SPLIT_DATA_DIR = "../split_data/"
 MODEL_DIR = '../models/'
 
 # Data file paths ------------------------------------------------------------------------
@@ -102,10 +102,15 @@ MUTATION_UNIFORM_THRESH = 0.99
 # Experiment metadata
 SEED = 100
 CLIN_COLS_TO_STRATIFY_ON = ['SUBTYPE', 'AGE', 'RACE', 'ETHNICITY', 'ICD_10', 'ICD_O_3_HISTOLOGY', 'NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT', 'PATH_T_STAGE', 'PATH_N_STAGE', 'PATH_M_STAGE', 'OS_STATUS', 'DSS_STATUS', 'DFS_STATUS', 'PFS_STATUS']
+P_VALUE_STRATIFICATION = 0.05
+TEST_SIZE = 0.15
+VAL_SIZE = 0.15
+STRATIFICATION_MAX_ATTEMPTS = 100
+
 
 # Neural Network Hyperparameters --------------------------------------------------------------
-NUM_EPOCHS = 200
-PATIENCE = 40
+NUM_EPOCHS = 1000
+PATIENCE = 100
 LEARNING_RATE = 1e-4
 BATCH_SIZE = 32
 HIDDEN_DIM = 64

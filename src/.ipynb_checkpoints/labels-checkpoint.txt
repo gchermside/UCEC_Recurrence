@@ -1,0 +1,527 @@
+ LABEL  FOLLOW_UP_DAYS  RECURRENCE_DATE               RECURRENCE_TYPE
+   1.0             335            335.0       Locoregional Recurrence
+   NaN              13              NaN                          None
+   1.0             517            517.0       Locoregional Recurrence
+   NaN             313              NaN                          None
+   NaN            3251              NaN                          None
+   0.0            4549              NaN                          None
+   1.0            1079           1079.0  Treatment Distant Recurrence
+   0.0            1126              NaN                          None
+   0.0            2540              NaN                          None
+   NaN             543              NaN                          None
+   NaN             997              NaN                          None
+   NaN            3423              NaN                          None
+   0.0            3205              NaN                          None
+   0.0            3762              NaN                          None
+   0.0            2254              NaN                          None
+   0.0            2682              NaN                          None
+   0.0            1841              NaN                          None
+   0.0            1841              NaN                          None
+   0.0            1416              NaN                          None
+   0.0            2247              NaN                          None
+   0.0            1120              NaN                          None
+   NaN             860              NaN                          None
+   1.0             390            390.0 Treatment Primary Tumor Field
+   NaN             706              NaN                          None
+   0.0            2088              NaN                          None
+   NaN            1153              NaN                          None
+   NaN             535              NaN                          None
+   NaN             596              NaN                          None
+   NaN             749              NaN                          None
+   NaN             884              NaN                          None
+   NaN             875              NaN                          None
+   0.0            1288              NaN                          None
+   NaN             485              NaN                          None
+   NaN             973              NaN                          None
+   1.0             337            337.0                    Metastatic
+   0.0            1105              NaN                          None
+   NaN            1006              NaN                          None
+   NaN             917              NaN                          None
+   0.0            3595              NaN                          None
+   0.0            2012              NaN                          None
+   1.0             528            528.0                    Metastatic
+   NaN             752              NaN                          None
+   NaN            1063              NaN                          None
+   NaN             776              NaN                          None
+   NaN             455              NaN                          None
+   NaN             341              NaN                          None
+   1.0             350            350.0       Locoregional Recurrence
+   NaN             512              NaN                          None
+   1.0             516            516.0       Locoregional Recurrence
+   NaN             439              NaN                          None
+   NaN             312              NaN                          None
+   1.0             606            606.0            Distant Metastasis
+   NaN             602              NaN                          None
+   NaN             894              NaN                          None
+   NaN            1069              NaN                          None
+   NaN            1045              NaN                          None
+   NaN            1039              NaN                          None
+   1.0             384            384.0       Locoregional Recurrence
+   1.0             480            480.0       Locoregional Recurrence
+   1.0             373            373.0       Locoregional Recurrence
+   NaN            1031              NaN                          None
+   NaN              50              NaN                          None
+   NaN             446              NaN                          None
+   NaN             684              NaN                          None
+   NaN             677              NaN                          None
+   1.0             370            370.0            Distant Metastasis
+   NaN             633              NaN                          None
+   0.0            1125              NaN                          None
+   NaN             628              NaN                          None
+   NaN             645              NaN                          None
+   NaN             475              NaN                          None
+   NaN             310              NaN                          None
+   NaN             467              NaN                          None
+   NaN             485              NaN                          None
+   1.0             424            424.0            Distant Metastasis
+   NaN             513              NaN                          None
+   NaN             513              NaN                          None
+   NaN             679              NaN                          None
+   NaN             390              NaN                          None
+   NaN             632              NaN                          None
+   NaN              82              NaN                          None
+   NaN            1068              NaN                          None
+   NaN               4              NaN                          None
+   NaN            3948              NaN                          None
+   1.0             406            406.0                 Treatment nan
+   NaN             709              NaN                          None
+   NaN            2618              NaN                          None
+   NaN            1461              NaN                          None
+   NaN            1944              NaN                          None
+   NaN            1758              NaN                          None
+   NaN            1385              NaN                          None
+   NaN            1122              NaN                          None
+   NaN             726              NaN                          None
+   NaN             384              NaN                          None
+   NaN             636              NaN                          None
+   1.0            1456           1456.0  Treatment Distant Recurrence
+   NaN            3815              NaN                          None
+   NaN            3589              NaN                          None
+   NaN            3357              NaN                          None
+   NaN            2859              NaN                          None
+   NaN            2015              NaN                          None
+   1.0             324            324.0                 Treatment nan
+   NaN            2972              NaN                          None
+   NaN            1421              NaN                          None
+   1.0             829            829.0                 Treatment nan
+   NaN             825              NaN                          None
+   NaN            2510              NaN                          None
+   1.0             639            639.0    Treatment Local Recurrence
+   0.0            1875              NaN                          None
+   NaN            2457              NaN                          None
+   NaN            2904              NaN                          None
+   NaN            1497              NaN                          None
+   NaN             763              NaN                          None
+   NaN            2180              NaN                          None
+   NaN            2767              NaN                          None
+   NaN            1700              NaN                          None
+   NaN             952              NaN                          None
+   1.0             831            831.0                    Metastatic
+   1.0             905            905.0                    Metastatic
+   NaN            1495              NaN                          None
+   NaN             204              NaN                          None
+   NaN            1832              NaN                          None
+   NaN            1395              NaN                          None
+   NaN             847              NaN                          None
+   1.0             158            158.0                    Metastatic
+   1.0             198            198.0       Locoregional Recurrence
+   1.0             407            407.0       Locoregional Recurrence
+   NaN              17              NaN                          None
+   NaN             413              NaN                          None
+   NaN            1010              NaN                          None
+   NaN             903              NaN                          None
+   NaN            2450              NaN                          None
+   NaN            2684              NaN                          None
+   NaN            2175              NaN                          None
+   NaN            1075              NaN                          None
+   0.0            1399              NaN                          None
+   NaN            2417              NaN                          None
+   NaN            1517              NaN                          None
+   NaN            2058              NaN                          None
+   NaN            1748              NaN                          None
+   NaN             833              NaN                          None
+   NaN             913              NaN                          None
+   0.0            1845              NaN                          None
+   NaN            1858              NaN                          None
+   NaN            1087              NaN                          None
+   0.0            1149              NaN                          None
+   NaN            1333              NaN                          None
+   0.0            1220              NaN                          None
+   0.0            2354              NaN                          None
+   NaN             404              NaN                          None
+   NaN            1001              NaN                          None
+   1.0             434            434.0                 Treatment nan
+   NaN             776              NaN                          None
+   NaN             802              NaN                          None
+   NaN             974              NaN                          None
+   NaN             788              NaN                          None
+   NaN            1037              NaN                          None
+   1.0            1588           1588.0  Treatment Distant Recurrence
+   NaN            2600              NaN                          None
+   NaN            2233              NaN                          None
+   NaN            2441              NaN                          None
+   NaN            1143              NaN                          None
+   NaN             145              NaN                          None
+   NaN             916              NaN                          None
+   0.0            2167              NaN                          None
+   1.0             684            684.0                    Metastatic
+   0.0            2475              NaN                          None
+   1.0             756            756.0                    Metastatic
+   NaN            1414              NaN                          None
+   NaN            1163              NaN                          None
+   NaN             540              NaN                          None
+   NaN              90              NaN                          None
+   NaN             947              NaN                          None
+   NaN            1975              NaN                          None
+   NaN               1              NaN                          None
+   NaN               6              NaN                          None
+   NaN              -6              NaN                          None
+   NaN              17              NaN                          None
+   1.0             938            938.0       Locoregional Recurrence
+   NaN               2              NaN                          None
+   NaN             624              NaN                          None
+   NaN               9              NaN                          None
+   NaN               8              NaN                          None
+   NaN               9              NaN                          None
+   NaN              30              NaN                          None
+   NaN             558              NaN                          None
+   NaN             440              NaN                          None
+   NaN              12              NaN                          None
+   0.0            2445              NaN                          None
+   0.0            1731              NaN                          None
+   0.0            2627              NaN                          None
+   NaN            1682              NaN                          None
+   NaN            1802              NaN                          None
+   NaN            2616              NaN                          None
+   0.0            1787              NaN                          None
+   0.0            2107              NaN                          None
+   1.0             356            356.0                    Metastatic
+   0.0            1478              NaN                          None
+   0.0            1110              NaN                          None
+   0.0            2209              NaN                          None
+   1.0             301            301.0                 Treatment nan
+   0.0            1757              NaN                          None
+   0.0            1953              NaN                          None
+   1.0             322            322.0                    Metastatic
+   NaN             847              NaN                          None
+   NaN             409              NaN                          None
+   0.0            1820              NaN                          None
+   1.0            1610           1610.0                    Metastatic
+   0.0            3448              NaN                          None
+   0.0            2687              NaN                          None
+   1.0             705            705.0                    Metastatic
+   0.0            1656              NaN                          None
+   1.0             131            131.0       Locoregional Recurrence
+   0.0            1362              NaN                          None
+   0.0            1876              NaN                          None
+   NaN            2609              NaN                          None
+   NaN            1583              NaN                          None
+   NaN             976              NaN                          None
+   0.0            2349              NaN                          None
+   NaN            2229              NaN                          None
+   NaN             509              NaN                          None
+   NaN             595              NaN                          None
+   NaN             593              NaN                          None
+   1.0             397            397.0                    Metastatic
+   NaN             560              NaN                          None
+   NaN             528              NaN                          None
+   NaN             504              NaN                          None
+   0.0            6859              NaN                          None
+   1.0            2706           2706.0       Locoregional Recurrence
+   NaN            1548              NaN                          None
+   0.0            1565              NaN                          None
+   1.0             349            349.0       Treatment Regional Site
+   0.0            1473              NaN                          None
+   1.0             106            106.0                 Treatment nan
+   1.0             613            613.0       Locoregional Recurrence
+   1.0             804            804.0            Distant Metastasis
+   NaN            4155              NaN                          None
+   NaN            2929              NaN                          None
+   NaN            2844              NaN                          None
+   NaN            2185              NaN                          None
+   1.0             562            562.0       Locoregional Recurrence
+   NaN             841              NaN                          None
+   NaN             902              NaN                          None
+   NaN            1249              NaN                          None
+   NaN            1038              NaN                          None
+   NaN            1063              NaN                          None
+   NaN             566              NaN                          None
+   NaN             614              NaN                          None
+   NaN             588              NaN                          None
+   NaN             637              NaN                          None
+   NaN            1071              NaN                          None
+   NaN            2167              NaN                          None
+   NaN             671              NaN                          None
+   NaN            1937              NaN                          None
+   NaN            2270              NaN                          None
+   1.0              70             70.0                    Metastatic
+   0.0            1263              NaN                          None
+   0.0            1477              NaN                          None
+   NaN             714              NaN                          None
+   NaN            1317              NaN                          None
+   0.0            1309              NaN                          None
+   NaN            1817              NaN                          None
+   NaN             644              NaN                          None
+   NaN             617              NaN                          None
+   NaN             469              NaN                          None
+   0.0            1568              NaN                          None
+   0.0            1553              NaN                          None
+   0.0            1582              NaN                          None
+   NaN            1043              NaN                          None
+   0.0            1601              NaN                          None
+   0.0            1607              NaN                          None
+   0.0            1721              NaN                          None
+   NaN             451              NaN                          None
+   NaN             382              NaN                          None
+   NaN             419              NaN                          None
+   NaN             448              NaN                          None
+   NaN             426              NaN                          None
+   NaN             470              NaN                          None
+   NaN             470              NaN                          None
+   NaN             291              NaN                          None
+   NaN             609              NaN                          None
+   NaN             721              NaN                          None
+   NaN             612              NaN                          None
+   NaN             344              NaN                          None
+   1.0             665            665.0       Locoregional Recurrence
+   NaN            1092              NaN                          None
+   NaN            1064              NaN                          None
+   NaN            1092              NaN                          None
+   1.0            1010           1010.0       Locoregional Recurrence
+   1.0             684            684.0       Locoregional Recurrence
+   1.0             760            760.0       Locoregional Recurrence
+   NaN             760              NaN                          None
+   NaN             734              NaN                          None
+   NaN             506              NaN                          None
+   NaN             401              NaN                          None
+   NaN             305              NaN                          None
+   NaN             300              NaN                          None
+   1.0             950            950.0                 Treatment nan
+   1.0             407            407.0  Treatment Distant Recurrence
+   0.0            2602              NaN                          None
+   0.0            2379              NaN                          None
+   1.0             111            111.0  Treatment Distant Recurrence
+   0.0            2371              NaN                          None
+   0.0            1882              NaN                          None
+   0.0            2068              NaN                          None
+   0.0            2935              NaN                          None
+   NaN             935              NaN                          None
+   0.0            2963              NaN                          None
+   0.0            2825              NaN                          None
+   NaN            3495              NaN                          None
+   0.0            2611              NaN                          None
+   0.0            2506              NaN                          None
+   0.0            2481              NaN                          None
+   1.0            1454           1454.0                    Metastatic
+   0.0            2212              NaN                          None
+   0.0            2228              NaN                          None
+   0.0            1810              NaN                          None
+   0.0            2725              NaN                          None
+   0.0            1934              NaN                          None
+   0.0            2544              NaN                          None
+   0.0            2646              NaN                          None
+   0.0            2022              NaN                          None
+   NaN             512              NaN                          None
+   NaN             602              NaN                          None
+   1.0             725            725.0       Treatment Regional Site
+   NaN             260              NaN                          None
+   NaN              17              NaN                          None
+   NaN             148              NaN                          None
+   NaN             872              NaN                          None
+   NaN             728              NaN                          None
+   NaN             686              NaN                          None
+   NaN              53              NaN                          None
+   NaN             135              NaN                          None
+   NaN             669              NaN                          None
+   0.0            1201              NaN                          None
+   NaN             915              NaN                          None
+   NaN             909              NaN                          None
+   NaN              58              NaN                          None
+   NaN             112              NaN                          None
+   NaN             892              NaN                          None
+   1.0             223            223.0                    Metastatic
+   NaN              20              NaN                          None
+   NaN             478              NaN                          None
+   0.0            1098              NaN                          None
+   1.0             519            519.0                    Metastatic
+   0.0            1106              NaN                          None
+   0.0            1141              NaN                          None
+   0.0            1119              NaN                          None
+   NaN              80              NaN                          None
+   1.0             651            651.0                 Treatment nan
+   NaN             350              NaN                          None
+   NaN             910              NaN                          None
+   NaN             945              NaN                          None
+   NaN            1023              NaN                          None
+   NaN             324              NaN                          None
+   NaN              21              NaN                          None
+   NaN             568              NaN                          None
+   NaN             120              NaN                          None
+   NaN             111              NaN                          None
+   NaN             532              NaN                          None
+   NaN             594              NaN                          None
+   NaN             202              NaN                          None
+   NaN             917              NaN                          None
+   1.0             514            514.0       Treatment Regional Site
+   1.0             427            427.0                    Metastatic
+   NaN              48              NaN                          None
+   NaN             213              NaN                          None
+   NaN              30              NaN                          None
+   NaN             926              NaN                          None
+   NaN              39              NaN                          None
+   NaN             852              NaN                          None
+   NaN             854              NaN                          None
+   NaN             802              NaN                          None
+   NaN             311              NaN                          None
+   NaN              46              NaN                          None
+   NaN              54              NaN                          None
+   NaN             339              NaN                          None
+   NaN             739              NaN                          None
+   NaN              71              NaN                          None
+   NaN             697              NaN                          None
+   NaN              43              NaN                          None
+   NaN             402              NaN                          None
+   NaN              22              NaN                          None
+   1.0             476            476.0                    Metastatic
+   NaN             513              NaN                          None
+   NaN             548              NaN                          None
+   NaN              63              NaN                          None
+   NaN             458              NaN                          None
+   NaN              32              NaN                          None
+   NaN             120              NaN                          None
+   NaN            1484              NaN                          None
+   1.0            1122           1122.0            Distant Metastasis
+   NaN             258              NaN                          None
+   NaN            1793              NaN                          None
+   NaN             483              NaN                          None
+   NaN             130              NaN                          None
+   NaN             573              NaN                          None
+   NaN             526              NaN                          None
+   NaN              67              NaN                          None
+   NaN            2178              NaN                          None
+   NaN            3318              NaN                          None
+   0.0            3067              NaN                          None
+   NaN            2717              NaN                          None
+   NaN             332              NaN                          None
+   NaN             826              NaN                          None
+   1.0             523            523.0            Distant Metastasis
+   NaN             496              NaN                          None
+   0.0            1195              NaN                          None
+   0.0            1114              NaN                          None
+   NaN             739              NaN                          None
+   1.0            1023           1023.0                    Metastatic
+   NaN             285              NaN                          None
+   NaN             377              NaN                          None
+   NaN             946              NaN                          None
+   NaN            3349              NaN                          None
+   NaN             711              NaN                          None
+   0.0            2406              NaN                          None
+   0.0            1793              NaN                          None
+   1.0              60             60.0                    Metastatic
+   0.0            1386              NaN                          None
+   NaN            1013              NaN                          None
+   NaN             488              NaN                          None
+   NaN             224              NaN                          None
+   NaN             511              NaN                          None
+   NaN             327              NaN                          None
+   1.0             880            880.0            Distant Metastasis
+   0.0            1147              NaN                          None
+   0.0            1878              NaN                          None
+   0.0            1872              NaN                          None
+   0.0            2035              NaN                          None
+   0.0            1407              NaN                          None
+   0.0            1752              NaN                          None
+   0.0            1567              NaN                          None
+   0.0            1564              NaN                          None
+   1.0             304            304.0                    Metastatic
+   NaN            1046              NaN                          None
+   NaN            1543              NaN                          None
+   NaN            1069              NaN                          None
+   1.0            1163           1163.0       Locoregional Recurrence
+   NaN             826              NaN                          None
+   NaN            1412              NaN                          None
+   NaN             820              NaN                          None
+   NaN             677              NaN                          None
+   NaN             497              NaN                          None
+   0.0            1170              NaN                          None
+   0.0            1554              NaN                          None
+   0.0            1647              NaN                          None
+   0.0            1639              NaN                          None
+   NaN             741              NaN                          None
+   NaN             826              NaN                          None
+   NaN             710              NaN                          None
+   NaN             710              NaN                          None
+   NaN             727              NaN                          None
+   NaN             693              NaN                          None
+   NaN            1014              NaN                          None
+   1.0             791            791.0       Locoregional Recurrence
+   1.0             517            517.0                    Metastatic
+   NaN             573              NaN                          None
+   1.0             334            334.0                    Metastatic
+   NaN             536              NaN                          None
+   NaN             670              NaN                          None
+   NaN             490              NaN                          None
+   NaN             997              NaN                          None
+   NaN             481              NaN                          None
+   1.0             190            190.0                    Metastatic
+   1.0             743            743.0       Locoregional Recurrence
+   NaN             588              NaN                          None
+   NaN             383              NaN                          None
+   NaN             310              NaN                          None
+   NaN             438              NaN                          None
+   NaN             574              NaN                          None
+   NaN             694              NaN                          None
+   NaN             610              NaN                          None
+   NaN            1392              NaN                          None
+   NaN             944              NaN                          None
+   NaN             885              NaN                          None
+   NaN             832              NaN                          None
+   1.0             896            896.0       Locoregional Recurrence
+   NaN             346              NaN                          None
+   NaN             545              NaN                          None
+   NaN             430              NaN                          None
+   NaN             605              NaN                          None
+   NaN             447              NaN                          None
+   NaN             516              NaN                          None
+   NaN             179              NaN                          None
+   0.0            2031              NaN                          None
+   0.0            2080              NaN                          None
+   NaN            1023              NaN                          None
+   1.0            1917           1917.0       Locoregional Recurrence
+   NaN             243              NaN                          None
+   1.0             280            280.0                    Metastatic
+   NaN             767              NaN                          None
+   0.0            2941              NaN                          None
+   1.0            1169           1169.0                    Metastatic
+   1.0             213            213.0                    Metastatic
+   NaN             880              NaN                          None
+   0.0            2230              NaN                          None
+   NaN             933              NaN                          None
+   0.0            1803              NaN                          None
+   NaN            1264              NaN                          None
+   0.0            2384              NaN                          None
+   NaN              39              NaN                          None
+   1.0             505            505.0            Distant Metastasis
+   1.0             351            351.0       Locoregional Recurrence
+   NaN             722              NaN                          None
+   NaN             404              NaN                          None
+   NaN             288              NaN                          None
+   1.0             661            661.0            Distant Metastasis
+   1.0             321            321.0            Distant Metastasis
+   NaN             707              NaN                          None
+   NaN             648              NaN                          None
+   NaN            1177              NaN                          None
+   NaN             687              NaN                          None
+   NaN             249              NaN                          None
+   NaN             522              NaN                          None
+   NaN             212              NaN                          None
+   NaN             689              NaN                          None
+   0.0            1215              NaN                          None
+   NaN             759              NaN                          None
+   NaN             719              NaN                          None
+   NaN             451              NaN                          None
+   NaN             135              NaN                          None
+   NaN             631              NaN                          None
+   NaN             556              NaN                          None
+   NaN               2              NaN                          None
+   NaN               7              NaN                          None

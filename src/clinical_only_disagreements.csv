@@ -1,0 +1,66 @@
+PATIENT_ID,NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT,ANATOMIC_TREATMENT_SITE,REGIMEN_INDICATION
+TCGA-A5-A0R6,Yes,,Adjuvant
+TCGA-A5-A0R6,Yes,Primary Tumor Field,Adjuvant
+TCGA-AJ-A2QK,Yes,,
+TCGA-AJ-A2QK,Yes,,
+TCGA-AJ-A2QK,Yes,Primary Tumor Field,
+TCGA-AJ-A3I9,Yes,,
+TCGA-AJ-A3I9,Yes,,
+TCGA-AJ-A3I9,Yes,Primary Tumor Field,
+TCGA-AJ-A3OL,Yes,,
+TCGA-AJ-A3OL,Yes,,
+TCGA-AP-A054,,,Adjuvant
+TCGA-AP-A054,,,Adjuvant
+TCGA-AP-A05O,Yes,,Adjuvant
+TCGA-AP-A05O,Yes,,Adjuvant
+TCGA-AP-A05O,Yes,Primary Tumor Field,Adjuvant
+TCGA-AX-A0IS,,,Progression
+TCGA-AX-A0IS,,,Progression
+TCGA-AX-A0IS,,,Progression
+TCGA-AX-A0IS,,,
+TCGA-AX-A2IN,Yes,Distant Site,
+TCGA-B5-A1MU,Yes,,Adjuvant
+TCGA-B5-A1N2,Yes,,Adjuvant
+TCGA-B5-A1N2,Yes,,Adjuvant
+TCGA-B5-A1N2,Yes,Regional Site,Adjuvant
+TCGA-D1-A0ZN,Yes,Regional Site,"Other, Specify In Notes"
+TCGA-D1-A179,Yes,,Adjuvant
+TCGA-D1-A179,Yes,,Adjuvant
+TCGA-DF-A2KR,Yes,Regional Site,
+TCGA-DF-A2KS,Yes,Regional Site,
+TCGA-DF-A2KS,Yes,Primary Tumor Field,
+TCGA-DF-A2L0,Yes,,
+TCGA-DF-A2L0,Yes,,
+TCGA-DF-A2L0,Yes,,
+TCGA-DF-A2L0,Yes,Regional Site,
+TCGA-EC-A1QX,Yes,,Adjuvant
+TCGA-EC-A1QX,Yes,,Adjuvant
+TCGA-EC-A1QX,Yes,,Adjuvant
+TCGA-EC-A1QX,Yes,Primary Tumor Field,Adjuvant
+TCGA-EO-A1Y7,Yes,,
+TCGA-EO-A1Y7,Yes,Primary Tumor Field,
+TCGA-EY-A1GO,Yes,,Adjuvant
+TCGA-EY-A1GO,Yes,,Adjuvant
+TCGA-EY-A1GO,Yes,,Progression
+TCGA-EY-A1GO,Yes,Regional Site,Adjuvant
+TCGA-EY-A1GO,Yes,Primary Tumor Field,Adjuvant
+TCGA-EY-A1GO,Yes,Primary Tumor Field,Adjuvant
+TCGA-EY-A1GO,Yes,Regional Site,Adjuvant
+TCGA-EY-A1GW,Yes,,Adjuvant
+TCGA-EY-A1GW,Yes,,Adjuvant
+TCGA-EY-A1GW,Yes,,Progression
+TCGA-EY-A2ON,Yes,,
+TCGA-EY-A2ON,Yes,,
+TCGA-EY-A2ON,Yes,,
+TCGA-EY-A2ON,Yes,,
+TCGA-FI-A2EW,Yes,,
+TCGA-FI-A2EW,Yes,,
+TCGA-FI-A2EW,Yes,,
+TCGA-FI-A2EW,Yes,,
+TCGA-FI-A2EW,Yes,,
+TCGA-FI-A2EW,Yes,,
+TCGA-FI-A2EX,Yes,,
+TCGA-FI-A2EX,Yes,,
+TCGA-FI-A2EX,Yes,,
+TCGA-FI-A2EY,Yes,,
+TCGA-FI-A2EY,Yes,,

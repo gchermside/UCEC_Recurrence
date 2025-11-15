@@ -210,3 +210,62 @@ class SimpleMultimodalNet(nn.Module):
         output = self.fusion_fc(fused)
         return output.squeeze()
 
+# =======================
+# Neural Network
+# =======================
+class MultimodalNet(nn.Module):
+    def __init__(self, 
+                 clin_dim, mrna_dim, mut_dim, 
+                 hidden_dim=config.HIDDEN_DIM, 
+                 dropout=config.DROPOUT, 
+                 lr=config.LEARNING_RATE,
+                 use_gene_sel=True,
+                ):
+        super().__init__()
+        
+        self.use_gene_sel = use_gene_sel
+        if use_gene_sel:
+            # ===== Gene selectors (for omics modalities) =====
+            self.gene_sel_mrna = GeneSelector(mrna_dim)
+            self.gene_sel_mut = GeneSelector(mut_dim)
+
+        # Separate encoders for each modality
+        self.clinical_fc = nn.Sequential(
+            nn.Linear(clin_dim, hidden_dim), 
+            nn.ReLU(),
+            nn.Dropout(dropout)
+            )
+        self.mrna_fc = nn.Sequential(
+            nn.Linear(mrna_dim, hidden_dim), 
+            nn.ReLU(),
+            nn.Dropout(dropout)
+            )
+        self.mut_fc = nn.Sequential(
+            nn.Linear(mut_dim, hidden_dim), 
+            nn.ReLU(),
+            nn.Dropout(dropout)
+        )
+        
+        # Fusion layer
+        self.fusion_fc = nn.Sequential(
+            nn.Linear(hidden_dim * 3, hidden_dim),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, 1),  # Binary output
+        )
+        
+    def forward(self, clin, mrna, mut):
+        if self.use_gene_sel:
+            # Apply gene selectors
+            mrna = self.gene_sel_mrna(mrna)
+            mut = self.gene_sel_mut(mut)
+
+        # Encode each modality
+        clin_emb = self.clinical_fc(clin)
+        mrna_emb = self.mrna_fc(mrna)
+        mut_emb = self.mut_fc(mut)
+        
+        # Concatenate embeddings
+        fused = torch.cat([clin_emb, mrna_emb, mut_emb], dim=1)
+        output = self.fusion_fc(fused)
+        return output.squeeze()
