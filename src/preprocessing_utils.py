@@ -24,7 +24,6 @@ import config
 
 def load_clinical_data(clinical_file):
     clinical_df = pd.read_csv(clinical_file, sep="\t", comment="#", low_memory=False)
-    clinical_df = clinical_df.set_index('PATIENT_ID')
     return clinical_df
 
 def load_mrna_data(mrna_file):
@@ -96,76 +95,342 @@ def load_mutation_data(mutation_file):
     
     return mut_df
 
-def generate_recurrence_labels(treatment_file, status_file, clinical_file):
+
+def label_patients_with_stats(status_df, treatment_df=None, clinical_df=None, min_followup_days=1095):
+    '''
+    Rules:
+    1. Positive for recurrence (1) if:
+       - STATUS in status_df contains any of:
+         "Locoregional Recurrence", "Distant Metastasis", "Metastatic"
+       - OR treatment_df contains:
+         ANATOMIC_TREATMENT_SITE in ["Local Recurrence", "Distant Recurrence"]
+         or REGIMEN_INDICATION == "Recurrence"
+       - Use START_DATE from the corresponding row as RECURRENCE_DATE.
+    2. No recurrence (0) if:
+       - STATUS does NOT contain:
+         "Locoregional Recurrence", "Distant Metastasis", "Metastatic",
+         "New Primary Tumor", "Locoregional Disease", "DECEASED"
+       - AND Last Follow Up row exists with START_DATE >= min_followup_days
+       - AND (PRIMARY_THERAPY_OUTCOME_SUCCESS == "Complete Remission/Response"
+         OR (NaN and TUMOR_STATUS == "tumor_free"))
+    2. Verify DFS_STATUS in clinical_df:
+       - If patient is labeled 1 but DFS_STATUS == "0:DiseaseFree", label NaN.
+       - If patient is labeled 0 but DFS_STATUS == "1:Recurred/Progressed", label NaN.
+
+    4. Otherwise label as NaN.
+    
+    Returns
+    -------
+    labels_df : pd.DataFrame
+        DataFrame with one row per patient containing:
+            - PATIENT_ID
+            - LABEL (1 = recurrence, 0 = no recurrence, NaN = inconclusive)
+            - FOLLOW_UP_DAYS
+            - RECURRENCE_DATE
+            - RECURRENCE_TYPE
+            - SOURCE (origin of the label or reason for exclusion)
+
+    stats : dict
+        Dictionary of counts summarizing labeling:
+            - recurrence_from_status
+            - recurrence_from_treatment
+            - no_recur_CRR
+            - no_recur_tumor_free_fallback
+            - excluded_progression_events
+            - excluded_not_complete_remission
+            - excluded_no_last_followup
+            - excluded_short_followup
+            - excluded_DFS_conflict
+
+    exclusion_reason : dict
+        Dictionary mapping patient IDs to the reason they were excluded or labeled NaN.
     """
-    Generates a pd.Series of recurrence labels for all patients.
-    
-    Label rules:
-     1 (recurred): 
-        * ANATOMIC_TREATMENT_SITE = "Local Recurrence" or "Distant Recurrence"
-        * REGIMEN_INDICATION = "Recurrence"
-        * STATUS = "Locoregional Recurrence"
-        * NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT = "Yes"
-     0 (no recurrence): 
-        * NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT = "No"
-        * AND no other columns show recurrence
-     None (unknown/ambiguous): 
-        * All other patients
-        * Patients with conflicting signals (e.g., "No" in clinical but positive elsewhere)
-    """
-    
-    # --- Load data ---
-    df_treatment = pd.read_csv(treatment_file, sep="\t", comment="#", low_memory=False)
-    df_status = pd.read_csv(status_file, sep="\t", comment="#", low_memory=False)
-    df_clinical = pd.read_csv(clinical_file, sep="\t", comment="#", low_memory=False)
-    
-    # Ensure PATIENT_ID is a column
-    if df_treatment.index.name == "PATIENT_ID":
-        df_treatment = df_treatment.reset_index()
-    if df_clinical.index.name == "PATIENT_ID":
-        df_clinical = df_clinical.reset_index()
-    
-    # --- Set of patient IDs labeled as recurrence ---
-    recur_patients = set()
-    
-    # From treatment file
-    treatment_mask = df_treatment["ANATOMIC_TREATMENT_SITE"].isin(["Local Recurrence", "Distant Recurrence"])
-    regimen_mask = df_treatment["REGIMEN_INDICATION"] == "Recurrence"
-    recur_patients.update(df_treatment.loc[treatment_mask | regimen_mask, "PATIENT_ID"].unique())
-    
-    # From status file
-    status_mask = df_status["STATUS"].astype(str).str.strip() == "Locoregional Recurrence"
-    recur_patients.update(df_status.loc[status_mask, "PATIENT_ID"].unique())
-    
-    # From clinical file
-    clinical_yes_mask = df_clinical["NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT"].astype(str).str.strip().str.lower() == "yes"
-    recur_patients.update(df_clinical.loc[clinical_yes_mask, "PATIENT_ID"].unique())
-    
-    # --- Set of patients labeled as no recurrence ---
-    clinical_no_mask = df_clinical["NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT"].astype(str).str.strip().str.lower() == "no"
-    no_recur_patients = set(df_clinical.loc[clinical_no_mask, "PATIENT_ID"].unique())
-    
-    # --- Combine all patient IDs ---
-    all_patients = set(df_clinical["PATIENT_ID"]) | set(df_treatment["PATIENT_ID"]) | set(df_status["PATIENT_ID"])
-    
-    # --- Assign labels ---
-    labels = {}
-    for pid in all_patients:
-        if pid in recur_patients and pid in no_recur_patients:
-            # conflict: one source says no, another says yes
-            labels[pid] = None
-        elif pid in recur_patients:
-            labels[pid] = 1
-        elif pid in no_recur_patients:
-            labels[pid] = 0
+
+'''
+    recurrence_events = {"Locoregional Recurrence", "Distant Metastasis", "Metastatic"}
+    progression_events = recurrence_events.union({"New Primary Tumor", "Locoregional Disease", "DECEASED"})
+    treatment_recur_sites = {"Local Recurrence", "Distant Recurrence"}
+
+    results = []
+    stats = {
+        "recurrence_from_status": 0,
+        "recurrence_from_treatment": 0,
+        "no_recur_CRR": 0,
+        "no_recur_tumor_free_fallback": 0,
+        "excluded_progression_events": 0,
+        "excluded_not_complete_remission": 0,
+        "excluded_no_last_followup": 0,
+        "excluded_short_followup": 0,
+        "excluded_DFS_conflict": 0
+    }
+    exclusion_reason = {}
+
+    # Ensure all DFs have PATIENT_ID as a column
+    for df_name, df in zip(["status_df", "treatment_df", "clinical_df"], [status_df, treatment_df, clinical_df]):
+        if df is not None and "PATIENT_ID" not in df.columns:
+            raise ValueError(f"{df_name} must contain column PATIENT_ID")
+
+    for pid, df in status_df.groupby("PATIENT_ID"):
+        df = df.sort_values("START_DATE")
+        label = np.nan
+        src = None
+        followup_days = df["START_DATE"].max()
+        rec_date = None
+        rec_type = None
+
+        # ------------------------------
+        # Step 1: Recurrence via status_df
+        # ------------------------------
+        recur_rows = df[df["STATUS"].isin(recurrence_events)]
+        if len(recur_rows) > 0:
+            first = recur_rows.iloc[0]
+            label = 1
+            followup_days = first["START_DATE"]
+            rec_date = first["START_DATE"]
+            rec_type = first["STATUS"]
+            src = "status_df"
+            stats["recurrence_from_status"] += 1
+            results.append({
+                "PATIENT_ID": pid,
+                "LABEL": label,
+                "FOLLOW_UP_DAYS": followup_days,
+                "RECURRENCE_DATE": rec_date,
+                "RECURRENCE_TYPE": rec_type,
+                "SOURCE": src
+            })
+            continue
+
+        # ------------------------------
+        # Step 1b: Recurrence via treatment_df
+        # ------------------------------
+        if treatment_df is not None:
+            t_df = treatment_df[treatment_df["PATIENT_ID"] == pid]
+            if len(t_df) > 0:
+                site_recur = t_df[t_df["ANATOMIC_TREATMENT_SITE"].isin(treatment_recur_sites)]
+                regimen_recur = t_df[t_df["REGIMEN_INDICATION"] == "Recurrence"]
+                combined = pd.concat([site_recur.head(1), regimen_recur.head(1)])
+                if len(combined) > 0:
+                    first_recur = combined.sort_values("START_DATE").iloc[0]
+                    label = 1
+                    followup_days = first_recur["START_DATE"]
+                    rec_date = first_recur["START_DATE"]
+                    rec_type = (
+                        f"Treatment {first_recur['ANATOMIC_TREATMENT_SITE']}"
+                        if pd.notna(first_recur.get("ANATOMIC_TREATMENT_SITE"))
+                        else "treatment_df"
+                    )
+                    src = "treatment_df"
+                    stats["recurrence_from_treatment"] += 1
+                    results.append({
+                        "PATIENT_ID": pid,
+                        "LABEL": label,
+                        "FOLLOW_UP_DAYS": followup_days,
+                        "RECURRENCE_DATE": rec_date,
+                        "RECURRENCE_TYPE": rec_type,
+                        "SOURCE": src
+                    })
+                    continue
+
+        # ------------------------------
+        # Step 2: Exclusions
+        # ------------------------------
+        if df["STATUS"].isin(progression_events).any():
+            label = np.nan
+            src = "excluded_progression"
+            stats["excluded_progression_events"] += 1
+            exclusion_reason[pid] = "progression event in STATUS"
+            results.append({
+                "PATIENT_ID": pid,
+                "LABEL": label,
+                "FOLLOW_UP_DAYS": followup_days,
+                "RECURRENCE_DATE": None,
+                "RECURRENCE_TYPE": None,
+                "SOURCE": src
+            })
+            continue
+
+        lf_rows = df[df["STATUS"] == "Last Follow Up"]
+        if len(lf_rows) == 0:
+            label = np.nan
+            src = "excluded_no_lfu"
+            stats["excluded_no_last_followup"] += 1
+            exclusion_reason[pid] = "no last follow up"
+            results.append({
+                "PATIENT_ID": pid,
+                "LABEL": label,
+                "FOLLOW_UP_DAYS": followup_days,
+                "RECURRENCE_DATE": None,
+                "RECURRENCE_TYPE": None,
+                "SOURCE": src
+            })
+            continue
+
+        last_follow = lf_rows.iloc[-1]
+        followup_days = last_follow["START_DATE"]
+        if followup_days < min_followup_days:
+            label = np.nan
+            src = "excluded_short_followup"
+            stats["excluded_short_followup"] += 1
+            exclusion_reason[pid] = "short followup"
+            results.append({
+                "PATIENT_ID": pid,
+                "LABEL": label,
+                "FOLLOW_UP_DAYS": followup_days,
+                "RECURRENCE_DATE": None,
+                "RECURRENCE_TYPE": None,
+                "SOURCE": src
+            })
+            continue
+
+        # ------------------------------
+        # Step 3: Tumor/therapy labeling
+        # ------------------------------
+        ptos = last_follow.get("PRIMARY_THERAPY_OUTCOME_SUCCESS", np.nan)
+        tumor = last_follow.get("TUMOR_STATUS", np.nan)
+        if pd.notna(ptos) and ptos == "Complete Remission/Response":
+            label = 0
+            src = "no_recur_CRR"
+            stats["no_recur_CRR"] += 1
+        elif pd.notna(ptos):
+            label = np.nan
+            src = "excluded_not_complete_remission"
+            stats["excluded_not_complete_remission"] += 1
+            exclusion_reason[pid] = "excluded_not_complete_remission"
+        elif tumor == "Tumor Free":
+            label = 0
+            src = "no_recur_tumor_free_fallback"
+            stats[src] = "no_recur_tumor_free_fallback"
         else:
-            labels[pid] = None
+            label = np.nan
+            src = "excluded_not_complete_remission"
+            stats["excluded_not_complete_remission"] += 1
+            exclusion_reason[pid] = "excluded_not_complete_remission"
+
+
+        results.append({
+            "PATIENT_ID": pid,
+            "LABEL": label,
+            "FOLLOW_UP_DAYS": followup_days,
+            "RECURRENCE_DATE": None,
+            "RECURRENCE_TYPE": None,
+            "SOURCE": src
+        })
+
+    # ------------------------------
+    # Step 4: DFS conflict handling
+    # ------------------------------
+    labels_df = pd.DataFrame(results)
+    if clinical_df is not None:
+        merged = labels_df.merge(
+            clinical_df[["PATIENT_ID", "DFS_STATUS"]],
+            on="PATIENT_ID",
+            how="left"
+        )
+        
+        # Identify DFS conflicts
+        conflict_mask = (
+            ((merged["LABEL"] == 1) & (merged["DFS_STATUS"] == "0:DiseaseFree")) |
+            ((merged["LABEL"] == 0) & (merged["DFS_STATUS"] == "1:Recurred/Progressed"))
+        )
+        
+        # Update stats and reasons
+        conflict_pids = merged.loc[conflict_mask, "PATIENT_ID"].tolist()
+        for pid in conflict_pids:
+            stats["excluded_DFS_conflict"] += 1
+            exclusion_reason[pid] = "DFS conflict"
+        
+        # Instead of removing, set LABEL to NaN and SOURCE to 'DFS_conflict'
+        merged.loc[conflict_mask, "LABEL"] = np.nan
+        merged.loc[conflict_mask, "SOURCE"] = "DFS_conflict"
     
-    # Return as pd.Series
-    label_series = pd.Series(labels, name="Recurrence_Label")
-    label_series.index.name = "PATIENT_ID"
+        labels_df = merged[labels_df.columns]
+
+    return labels_df, stats, exclusion_reason
+
+
+
+# def generate_recurrence_labels(treatment_file, status_file, clinical_file):
+#     """
+#     Generates a pd.Series of recurrence labels for all patients.
     
-    return label_series
+#     Label rules:
+#      1 (recurred): 
+#         * ANATOMIC_TREATMENT_SITE = "Local Recurrence" or "Distant Recurrence"
+#         * REGIMEN_INDICATION = "Recurrence"
+#         * STATUS = "Locoregional Recurrence"
+#         * NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT = "Yes"
+#      0 (no recurrence): 
+#         * NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT = "No"
+#         * AND no other columns show recurrence
+#      None (unknown/ambiguous): 
+#         * All other patients
+#         * Patients with conflicting signals (e.g., "No" in clinical but positive elsewhere)
+#     """
+    
+#     # --- Load data ---
+#     df_treatment = pd.read_csv(treatment_file, sep="\t", comment="#", low_memory=False)
+#     df_status = pd.read_csv(status_file, sep="\t", comment="#", low_memory=False)
+#     df_clinical = pd.read_csv(clinical_file, sep="\t", comment="#", low_memory=False)
+    
+#     # Ensure PATIENT_ID is a column
+#     if df_treatment.index.name == "PATIENT_ID":
+#         df_treatment = df_treatment.reset_index()
+#     if df_clinical.index.name == "PATIENT_ID":
+#         df_clinical = df_clinical.reset_index()
+    
+#     # --- Set of patient IDs labeled as recurrence ---
+#     recur_patients = set()
+    
+#     # From treatment file
+#     treatment_mask = df_treatment["ANATOMIC_TREATMENT_SITE"].isin(["Local Recurrence", "Distant Recurrence"])
+#     regimen_mask = df_treatment["REGIMEN_INDICATION"] == "Recurrence"
+#     recur_patients.update(df_treatment.loc[treatment_mask | regimen_mask, "PATIENT_ID"].unique())
+    
+#     # From status file
+#     status_mask = df_status["STATUS"].astype(str).str.strip() == "Locoregional Recurrence"
+#     recur_patients.update(df_status.loc[status_mask, "PATIENT_ID"].unique())
+    
+#     # From clinical file
+#     clinical_yes_mask = df_clinical["NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT"].astype(str).str.strip().str.lower() == "yes"
+#     recur_patients.update(df_clinical.loc[clinical_yes_mask, "PATIENT_ID"].unique())
+    
+#     # --- Set of patients labeled as no recurrence ---
+#     clinical_no_mask = df_clinical["NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT"].astype(str).str.strip().str.lower() == "no"
+#     no_recur_patients = set(df_clinical.loc[clinical_no_mask, "PATIENT_ID"].unique())
+    
+#     # --- Combine all patient IDs ---
+#     all_patients = set(df_clinical["PATIENT_ID"]) | set(df_treatment["PATIENT_ID"]) | set(df_status["PATIENT_ID"])
+    
+#     # --- Assign labels ---
+#     labels = {}
+#     for pid in all_patients:
+#         if pid in recur_patients and pid in no_recur_patients:
+#             # conflict: one source says no, another says yes
+#             labels[pid] = None
+#         elif pid in recur_patients:
+#             labels[pid] = 1
+#         elif pid in no_recur_patients:
+#             labels[pid] = 0
+#         else:
+#             labels[pid] = None
+    
+#     # Return as pd.Series
+#     label_series = pd.Series(labels, name="Recurrence_Label")
+#     label_series.index.name = "PATIENT_ID"
+    
+#     return label_series
+
+def ensure_patient_id_index(df):
+    """
+    Ensures the DataFrame uses PATIENT_ID as its index.
+    Works whether PATIENT_ID is already the index or a column.
+    """
+    if "PATIENT_ID" in df.columns:
+        df = df.set_index("PATIENT_ID")
+        return df
+    else:
+        return df
+
 
 def drop_patients_missing_data(clinical_df, mrna_df, mutation_df, labels):
     """
@@ -176,6 +441,9 @@ def drop_patients_missing_data(clinical_df, mrna_df, mutation_df, labels):
         clinical_df_clean, mrna_df_clean, mutation_df_clean, labels_clean
     """
     # Step 1: Find shared patient IDs (preserve order)
+    clinical_df = ensure_patient_id_index(clinical_df)
+    mrna_df = ensure_patient_id_index(mrna_df)
+    mutation_df = ensure_patient_id_index(mutation_df)
     shared_patients = (
         clinical_df.index
         .intersection(mrna_df.index)
@@ -313,12 +581,28 @@ def load_and_split_data(clinical_file=config.CLINICAL_DATA_PATH,
     clinical_df = load_clinical_data(clinical_file)
     mrna_df = load_mrna_data(mrna_file)
     mutation_df = load_mutation_data(mutation_file)
-    labels = generate_recurrence_labels(
-        treatment_file=treatment_file,
-        status_file=status_file,
-        clinical_file=config.CLINICAL_DATA_PATH,
-    )
 
+    status_df = pd.read_csv(
+        status_file,
+        sep="\t",
+        comment="#",
+        low_memory=False
+    )
+    
+    treatment_df = pd.read_csv(
+        treatment_file,
+        sep="\t",
+        comment="#",   # skip header comments if present
+        low_memory=False
+    )
+    
+    labels_df, _, _ = label_patients_with_stats(
+        clinical_df=clinical_df,
+        status_df=status_df,
+        treatment_df=treatment_df,
+    )
+    labels_df = labels_df.set_index("PATIENT_ID")
+    labels = pd.Series(labels_df["LABEL"])
     clinical_df, mrna_df, mutation_df, labels = drop_patients_missing_data(clinical_df, mrna_df, mutation_df, labels)
 
     clinical_cols = clinical_df.columns.tolist()

@@ -69,10 +69,10 @@ TCGA-A5-A0GH         0:DiseaseFree   74.103297        No                 NaN    
 TCGA-A5-A0GH         0:DiseaseFree   74.103297        No                 NaN                     NaN          Last Follow Up    0.0          2254.0
 TCGA-A5-A0GI         0:DiseaseFree   88.174376        No Primary Tumor Field                Adjuvant       Initial Diagnosis    0.0          2682.0
 TCGA-A5-A0GI         0:DiseaseFree   88.174376        No Primary Tumor Field                Adjuvant          Last Follow Up    0.0          2682.0
-TCGA-A5-A0GJ 1:Recurred/Progressed    0.394516        No                 NaN                Adjuvant       Initial Diagnosis    NaN             NaN
-TCGA-A5-A0GJ 1:Recurred/Progressed    0.394516        No                 NaN                Adjuvant          Last Follow Up    NaN             NaN
-TCGA-A5-A0GJ 1:Recurred/Progressed    0.394516        No                 NaN                Adjuvant       Initial Diagnosis    NaN             NaN
-TCGA-A5-A0GJ 1:Recurred/Progressed    0.394516        No                 NaN                Adjuvant          Last Follow Up    NaN             NaN
+TCGA-A5-A0GJ 1:Recurred/Progressed    0.394516        No                 NaN                Adjuvant       Initial Diagnosis    NaN          2000.0
+TCGA-A5-A0GJ 1:Recurred/Progressed    0.394516        No                 NaN                Adjuvant          Last Follow Up    NaN          2000.0
+TCGA-A5-A0GJ 1:Recurred/Progressed    0.394516        No                 NaN                Adjuvant       Initial Diagnosis    NaN          2000.0
+TCGA-A5-A0GJ 1:Recurred/Progressed    0.394516        No                 NaN                Adjuvant          Last Follow Up    NaN          2000.0
 TCGA-A5-A0GM         0:DiseaseFree   60.525364        No                 NaN                     NaN       Initial Diagnosis    0.0          1841.0
 TCGA-A5-A0GM         0:DiseaseFree   60.525364        No                 NaN                     NaN          Last Follow Up    0.0          1841.0
 TCGA-A5-A0GN         0:DiseaseFree   60.525364        No Primary Tumor Field                Adjuvant          Last Follow Up    0.0          1841.0
@@ -378,8 +378,8 @@ TCGA-AJ-A8CV         0:DiseaseFree   35.111944        No                 NaN    
 TCGA-AJ-A8CV         0:DiseaseFree   35.111944        No                 NaN                     NaN       Initial Diagnosis    NaN          1068.0
 TCGA-AJ-A8CW                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    NaN             4.0
 TCGA-AJ-A8CW                   NaN         NaN        No                 NaN                     NaN          Last Follow Up    NaN             4.0
-TCGA-AP-A051         0:DiseaseFree  129.795838        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          3948.0
-TCGA-AP-A051         0:DiseaseFree  129.795838        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN          3948.0
+TCGA-AP-A051         0:DiseaseFree  129.795838        No Primary Tumor Field                Adjuvant       Initial Diagnosis    0.0          3948.0
+TCGA-AP-A051         0:DiseaseFree  129.795838        No Primary Tumor Field                Adjuvant          Last Follow Up    0.0          3948.0
 TCGA-AP-A052                   NaN         NaN       NaN                 NaN                Adjuvant       Initial Diagnosis    1.0           406.0
 TCGA-AP-A052                   NaN         NaN       NaN                 NaN                Adjuvant                DECEASED    1.0           406.0
 TCGA-AP-A052                   NaN         NaN       NaN                 NaN                Adjuvant       Initial Diagnosis    1.0           406.0
@@ -392,9 +392,9 @@ TCGA-AP-A054 1:Recurred/Progressed   18.608015       NaN                 NaN    
 TCGA-AP-A054 1:Recurred/Progressed   18.608015       NaN                 NaN                Adjuvant       Initial Diagnosis    NaN           709.0
 TCGA-AP-A054 1:Recurred/Progressed   18.608015       NaN                 NaN                Adjuvant                DECEASED    NaN           709.0
 TCGA-AP-A054 1:Recurred/Progressed   18.608015       NaN                 NaN                Adjuvant       Initial Diagnosis    NaN           709.0
-TCGA-AP-A056         0:DiseaseFree   86.070290        No Primary Tumor Field                Adjuvant        Last Known Alive    NaN          2618.0
-TCGA-AP-A056         0:DiseaseFree   86.070290        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          2618.0
-TCGA-AP-A056         0:DiseaseFree   86.070290        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN          2618.0
+TCGA-AP-A056         0:DiseaseFree   86.070290        No Primary Tumor Field                Adjuvant        Last Known Alive    0.0          2618.0
+TCGA-AP-A056         0:DiseaseFree   86.070290        No Primary Tumor Field                Adjuvant       Initial Diagnosis    0.0          2618.0
+TCGA-AP-A056         0:DiseaseFree   86.070290        No Primary Tumor Field                Adjuvant          Last Follow Up    0.0          2618.0
 TCGA-AP-A059         0:DiseaseFree   48.032350       NaN Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          1461.0
 TCGA-AP-A059         0:DiseaseFree   48.032350       NaN Primary Tumor Field                Adjuvant          Last Follow Up    NaN          1461.0
 TCGA-AP-A05A         0:DiseaseFree   63.911628        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          1944.0
@@ -403,31 +403,31 @@ TCGA-AP-A05A         0:DiseaseFree   63.911628        No Primary Tumor Field    
 TCGA-AP-A05A         0:DiseaseFree   63.911628        No                 NaN                Adjuvant        Last Known Alive    NaN          1944.0
 TCGA-AP-A05A         0:DiseaseFree   63.911628        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1944.0
 TCGA-AP-A05A         0:DiseaseFree   63.911628        No                 NaN                Adjuvant                DECEASED    NaN          1944.0
-TCGA-AP-A05D         0:DiseaseFree   57.796627        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1758.0
-TCGA-AP-A05D         0:DiseaseFree   57.796627        No                 NaN                Adjuvant          Last Follow Up    NaN          1758.0
-TCGA-AP-A05D         0:DiseaseFree   57.796627        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1758.0
-TCGA-AP-A05D         0:DiseaseFree   57.796627        No                 NaN                Adjuvant          Last Follow Up    NaN          1758.0
-TCGA-AP-A05D         0:DiseaseFree   57.796627        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1758.0
-TCGA-AP-A05D         0:DiseaseFree   57.796627        No                 NaN                Adjuvant          Last Follow Up    NaN          1758.0
-TCGA-AP-A05D         0:DiseaseFree   57.796627        No       Regional Site                Adjuvant       Initial Diagnosis    NaN          1758.0
-TCGA-AP-A05D         0:DiseaseFree   57.796627        No       Regional Site                Adjuvant          Last Follow Up    NaN          1758.0
-TCGA-AP-A05D         0:DiseaseFree   57.796627        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          1758.0
-TCGA-AP-A05D         0:DiseaseFree   57.796627        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN          1758.0
-TCGA-AP-A05H         0:DiseaseFree   45.533748        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN          1385.0
-TCGA-AP-A05H         0:DiseaseFree   45.533748        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          1385.0
-TCGA-AP-A05H         0:DiseaseFree   45.533748        No Primary Tumor Field                Adjuvant        Last Known Alive    NaN          1385.0
-TCGA-AP-A05H         0:DiseaseFree   45.533748        No                 NaN                Adjuvant          Last Follow Up    NaN          1385.0
-TCGA-AP-A05H         0:DiseaseFree   45.533748        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1385.0
-TCGA-AP-A05H         0:DiseaseFree   45.533748        No                 NaN                Adjuvant        Last Known Alive    NaN          1385.0
-TCGA-AP-A05H         0:DiseaseFree   45.533748        No                 NaN                Adjuvant          Last Follow Up    NaN          1385.0
-TCGA-AP-A05H         0:DiseaseFree   45.533748        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1385.0
-TCGA-AP-A05H         0:DiseaseFree   45.533748        No                 NaN                Adjuvant        Last Known Alive    NaN          1385.0
-TCGA-AP-A05J         0:DiseaseFree   36.887267        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1122.0
-TCGA-AP-A05J         0:DiseaseFree   36.887267        No                 NaN                Adjuvant          Last Follow Up    NaN          1122.0
-TCGA-AP-A05J         0:DiseaseFree   36.887267        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1122.0
-TCGA-AP-A05J         0:DiseaseFree   36.887267        No                 NaN                Adjuvant          Last Follow Up    NaN          1122.0
-TCGA-AP-A05J         0:DiseaseFree   36.887267        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          1122.0
-TCGA-AP-A05J         0:DiseaseFree   36.887267        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN          1122.0
+TCGA-AP-A05D         0:DiseaseFree   57.796627        No                 NaN                Adjuvant       Initial Diagnosis    0.0          1758.0
+TCGA-AP-A05D         0:DiseaseFree   57.796627        No                 NaN                Adjuvant          Last Follow Up    0.0          1758.0
+TCGA-AP-A05D         0:DiseaseFree   57.796627        No                 NaN                Adjuvant       Initial Diagnosis    0.0          1758.0
+TCGA-AP-A05D         0:DiseaseFree   57.796627        No                 NaN                Adjuvant          Last Follow Up    0.0          1758.0
+TCGA-AP-A05D         0:DiseaseFree   57.796627        No                 NaN                Adjuvant       Initial Diagnosis    0.0          1758.0
+TCGA-AP-A05D         0:DiseaseFree   57.796627        No                 NaN                Adjuvant          Last Follow Up    0.0          1758.0
+TCGA-AP-A05D         0:DiseaseFree   57.796627        No       Regional Site                Adjuvant       Initial Diagnosis    0.0          1758.0
+TCGA-AP-A05D         0:DiseaseFree   57.796627        No       Regional Site                Adjuvant          Last Follow Up    0.0          1758.0
+TCGA-AP-A05D         0:DiseaseFree   57.796627        No Primary Tumor Field                Adjuvant       Initial Diagnosis    0.0          1758.0
+TCGA-AP-A05D         0:DiseaseFree   57.796627        No Primary Tumor Field                Adjuvant          Last Follow Up    0.0          1758.0
+TCGA-AP-A05H         0:DiseaseFree   45.533748        No Primary Tumor Field                Adjuvant          Last Follow Up    0.0          1385.0
+TCGA-AP-A05H         0:DiseaseFree   45.533748        No Primary Tumor Field                Adjuvant       Initial Diagnosis    0.0          1385.0
+TCGA-AP-A05H         0:DiseaseFree   45.533748        No Primary Tumor Field                Adjuvant        Last Known Alive    0.0          1385.0
+TCGA-AP-A05H         0:DiseaseFree   45.533748        No                 NaN                Adjuvant          Last Follow Up    0.0          1385.0
+TCGA-AP-A05H         0:DiseaseFree   45.533748        No                 NaN                Adjuvant       Initial Diagnosis    0.0          1385.0
+TCGA-AP-A05H         0:DiseaseFree   45.533748        No                 NaN                Adjuvant        Last Known Alive    0.0          1385.0
+TCGA-AP-A05H         0:DiseaseFree   45.533748        No                 NaN                Adjuvant          Last Follow Up    0.0          1385.0
+TCGA-AP-A05H         0:DiseaseFree   45.533748        No                 NaN                Adjuvant       Initial Diagnosis    0.0          1385.0
+TCGA-AP-A05H         0:DiseaseFree   45.533748        No                 NaN                Adjuvant        Last Known Alive    0.0          1385.0
+TCGA-AP-A05J         0:DiseaseFree   36.887267        No                 NaN                Adjuvant       Initial Diagnosis    0.0          1122.0
+TCGA-AP-A05J         0:DiseaseFree   36.887267        No                 NaN                Adjuvant          Last Follow Up    0.0          1122.0
+TCGA-AP-A05J         0:DiseaseFree   36.887267        No                 NaN                Adjuvant       Initial Diagnosis    0.0          1122.0
+TCGA-AP-A05J         0:DiseaseFree   36.887267        No                 NaN                Adjuvant          Last Follow Up    0.0          1122.0
+TCGA-AP-A05J         0:DiseaseFree   36.887267        No Primary Tumor Field                Adjuvant       Initial Diagnosis    0.0          1122.0
+TCGA-AP-A05J         0:DiseaseFree   36.887267        No Primary Tumor Field                Adjuvant          Last Follow Up    0.0          1122.0
 TCGA-AP-A05N         0:DiseaseFree   23.868232        No Primary Tumor Field                Adjuvant                DECEASED    NaN           726.0
 TCGA-AP-A05N         0:DiseaseFree   23.868232        No Primary Tumor Field                Adjuvant        Last Known Alive    NaN           726.0
 TCGA-AP-A05N         0:DiseaseFree   23.868232        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN           726.0
@@ -445,34 +445,34 @@ TCGA-AP-A0L8 1:Recurred/Progressed   47.769340       NaN       Regional Site    
 TCGA-AP-A0L8 1:Recurred/Progressed   47.769340       NaN       Regional Site                Adjuvant       Initial Diagnosis    1.0          1456.0
 TCGA-AP-A0L8 1:Recurred/Progressed   47.769340       NaN       Regional Site                Adjuvant                DECEASED    1.0          1456.0
 TCGA-AP-A0L8 1:Recurred/Progressed   47.769340       NaN       Regional Site                Adjuvant                DECEASED    1.0          1456.0
-TCGA-AP-A0L9         0:DiseaseFree  125.423283        No                 NaN                     NaN        Last Known Alive    NaN          3815.0
-TCGA-AP-A0L9         0:DiseaseFree  125.423283        No                 NaN                     NaN       Initial Diagnosis    NaN          3815.0
-TCGA-AP-A0L9         0:DiseaseFree  125.423283        No                 NaN                     NaN          Last Follow Up    NaN          3815.0
-TCGA-AP-A0LD         0:DiseaseFree  117.993228        No Primary Tumor Field                Adjuvant        Last Known Alive    NaN          3589.0
-TCGA-AP-A0LD         0:DiseaseFree  117.993228        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          3589.0
-TCGA-AP-A0LD         0:DiseaseFree  117.993228        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN          3589.0
-TCGA-AP-A0LE         0:DiseaseFree  110.365914        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN          3357.0
-TCGA-AP-A0LE         0:DiseaseFree  110.365914        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          3357.0
+TCGA-AP-A0L9         0:DiseaseFree  125.423283        No                 NaN                     NaN        Last Known Alive    0.0          3815.0
+TCGA-AP-A0L9         0:DiseaseFree  125.423283        No                 NaN                     NaN       Initial Diagnosis    0.0          3815.0
+TCGA-AP-A0L9         0:DiseaseFree  125.423283        No                 NaN                     NaN          Last Follow Up    0.0          3815.0
+TCGA-AP-A0LD         0:DiseaseFree  117.993228        No Primary Tumor Field                Adjuvant        Last Known Alive    0.0          3589.0
+TCGA-AP-A0LD         0:DiseaseFree  117.993228        No Primary Tumor Field                Adjuvant       Initial Diagnosis    0.0          3589.0
+TCGA-AP-A0LD         0:DiseaseFree  117.993228        No Primary Tumor Field                Adjuvant          Last Follow Up    0.0          3589.0
+TCGA-AP-A0LE         0:DiseaseFree  110.365914        No Primary Tumor Field                Adjuvant          Last Follow Up    0.0          3357.0
+TCGA-AP-A0LE         0:DiseaseFree  110.365914        No Primary Tumor Field                Adjuvant       Initial Diagnosis    0.0          3357.0
 TCGA-AP-A0LF                   NaN         NaN       NaN                 NaN                     NaN       Initial Diagnosis    NaN          2859.0
 TCGA-AP-A0LF                   NaN         NaN       NaN                 NaN                     NaN          Last Follow Up    NaN          2859.0
 TCGA-AP-A0LG         0:DiseaseFree   66.245849       NaN Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          2015.0
 TCGA-AP-A0LG         0:DiseaseFree   66.245849       NaN Primary Tumor Field                Adjuvant          Last Follow Up    NaN          2015.0
-TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN                 NaN                Adjuvant                DECEASED    1.0           324.0
-TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN                 NaN                Adjuvant       Initial Diagnosis    1.0           324.0
-TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN                 NaN              Recurrence                DECEASED    1.0           324.0
-TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN                 NaN              Recurrence       Initial Diagnosis    1.0           324.0
-TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN                 NaN                Adjuvant                DECEASED    1.0           324.0
-TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN                 NaN                Adjuvant       Initial Diagnosis    1.0           324.0
-TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN                 NaN              Recurrence                DECEASED    1.0           324.0
-TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN                 NaN              Recurrence       Initial Diagnosis    1.0           324.0
-TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN Primary Tumor Field                Adjuvant                DECEASED    1.0           324.0
-TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN Primary Tumor Field                Adjuvant       Initial Diagnosis    1.0           324.0
-TCGA-AP-A0LI         0:DiseaseFree   97.708518        No                 NaN                Adjuvant          Last Follow Up    NaN          2972.0
-TCGA-AP-A0LI         0:DiseaseFree   97.708518        No       Regional Site                Adjuvant       Initial Diagnosis    NaN          2972.0
-TCGA-AP-A0LI         0:DiseaseFree   97.708518        No       Regional Site                Adjuvant          Last Follow Up    NaN          2972.0
-TCGA-AP-A0LI         0:DiseaseFree   97.708518        No                 NaN                Adjuvant       Initial Diagnosis    NaN          2972.0
-TCGA-AP-A0LI         0:DiseaseFree   97.708518        No                 NaN                Adjuvant       Initial Diagnosis    NaN          2972.0
-TCGA-AP-A0LI         0:DiseaseFree   97.708518        No                 NaN                Adjuvant          Last Follow Up    NaN          2972.0
+TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN                 NaN                Adjuvant                DECEASED    1.0           327.0
+TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN                 NaN                Adjuvant       Initial Diagnosis    1.0           327.0
+TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN                 NaN              Recurrence                DECEASED    1.0           327.0
+TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN                 NaN              Recurrence       Initial Diagnosis    1.0           327.0
+TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN                 NaN                Adjuvant                DECEASED    1.0           327.0
+TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN                 NaN                Adjuvant       Initial Diagnosis    1.0           327.0
+TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN                 NaN              Recurrence                DECEASED    1.0           327.0
+TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN                 NaN              Recurrence       Initial Diagnosis    1.0           327.0
+TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN Primary Tumor Field                Adjuvant                DECEASED    1.0           327.0
+TCGA-AP-A0LH 1:Recurred/Progressed    9.928658       NaN Primary Tumor Field                Adjuvant       Initial Diagnosis    1.0           327.0
+TCGA-AP-A0LI         0:DiseaseFree   97.708518        No                 NaN                Adjuvant          Last Follow Up    0.0          2972.0
+TCGA-AP-A0LI         0:DiseaseFree   97.708518        No       Regional Site                Adjuvant       Initial Diagnosis    0.0          2972.0
+TCGA-AP-A0LI         0:DiseaseFree   97.708518        No       Regional Site                Adjuvant          Last Follow Up    0.0          2972.0
+TCGA-AP-A0LI         0:DiseaseFree   97.708518        No                 NaN                Adjuvant       Initial Diagnosis    0.0          2972.0
+TCGA-AP-A0LI         0:DiseaseFree   97.708518        No                 NaN                Adjuvant       Initial Diagnosis    0.0          2972.0
+TCGA-AP-A0LI         0:DiseaseFree   97.708518        No                 NaN                Adjuvant          Last Follow Up    0.0          2972.0
 TCGA-AP-A0LJ         0:DiseaseFree   46.717296       NaN                 NaN                     NaN       Initial Diagnosis    NaN          1421.0
 TCGA-AP-A0LJ         0:DiseaseFree   46.717296       NaN                 NaN                     NaN          Last Follow Up    NaN          1421.0
 TCGA-AP-A0LL 1:Recurred/Progressed   25.972318        No                 NaN              Recurrence       Initial Diagnosis    1.0           829.0
@@ -485,8 +485,8 @@ TCGA-AP-A0LM         0:DiseaseFree   27.122990       NaN                 NaN    
 TCGA-AP-A0LM         0:DiseaseFree   27.122990       NaN                 NaN                Adjuvant          Last Follow Up    NaN           825.0
 TCGA-AP-A0LM         0:DiseaseFree   27.122990       NaN       Regional Site                Adjuvant       Initial Diagnosis    NaN           825.0
 TCGA-AP-A0LM         0:DiseaseFree   27.122990       NaN       Regional Site                Adjuvant          Last Follow Up    NaN           825.0
-TCGA-AP-A0LN         0:DiseaseFree   82.519644        No                 NaN                     NaN       Initial Diagnosis    NaN          2510.0
-TCGA-AP-A0LN         0:DiseaseFree   82.519644        No                 NaN                     NaN          Last Follow Up    NaN          2510.0
+TCGA-AP-A0LN         0:DiseaseFree   82.519644        No                 NaN                     NaN       Initial Diagnosis    0.0          2510.0
+TCGA-AP-A0LN         0:DiseaseFree   82.519644        No                 NaN                     NaN          Last Follow Up    0.0          2510.0
 TCGA-AP-A0LO 1:Recurred/Progressed   16.964198       NaN    Local Recurrence              Recurrence       Initial Diagnosis    1.0           639.0
 TCGA-AP-A0LO 1:Recurred/Progressed   16.964198       NaN    Local Recurrence              Recurrence                DECEASED    1.0           639.0
 TCGA-AP-A0LO 1:Recurred/Progressed   16.964198       NaN    Local Recurrence              Recurrence       Initial Diagnosis    1.0           639.0
@@ -497,20 +497,20 @@ TCGA-AP-A0LP         0:DiseaseFree   61.643160       NaN Primary Tumor Field    
 TCGA-AP-A0LP         0:DiseaseFree   61.643160       NaN Primary Tumor Field                Adjuvant          Last Follow Up    0.0          1875.0
 TCGA-AP-A0LP         0:DiseaseFree   61.643160       NaN Primary Tumor Field                Adjuvant       Initial Diagnosis    0.0          1875.0
 TCGA-AP-A0LP         0:DiseaseFree   61.643160       NaN Primary Tumor Field                Adjuvant          Last Follow Up    0.0          1875.0
-TCGA-AP-A0LQ         0:DiseaseFree   80.777197        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN          2457.0
-TCGA-AP-A0LQ         0:DiseaseFree   80.777197        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          2457.0
-TCGA-AP-A0LS         0:DiseaseFree   95.472926        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          2904.0
-TCGA-AP-A0LS         0:DiseaseFree   95.472926        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN          2904.0
-TCGA-AP-A0LT         0:DiseaseFree   49.215899        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          1497.0
-TCGA-AP-A0LT         0:DiseaseFree   49.215899        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN          1497.0
+TCGA-AP-A0LQ         0:DiseaseFree   80.777197        No Primary Tumor Field                Adjuvant          Last Follow Up    0.0          2457.0
+TCGA-AP-A0LQ         0:DiseaseFree   80.777197        No Primary Tumor Field                Adjuvant       Initial Diagnosis    0.0          2457.0
+TCGA-AP-A0LS         0:DiseaseFree   95.472926        No Primary Tumor Field                Adjuvant       Initial Diagnosis    0.0          2904.0
+TCGA-AP-A0LS         0:DiseaseFree   95.472926        No Primary Tumor Field                Adjuvant          Last Follow Up    0.0          2904.0
+TCGA-AP-A0LT         0:DiseaseFree   49.215899        No Primary Tumor Field                Adjuvant       Initial Diagnosis    0.0          1497.0
+TCGA-AP-A0LT         0:DiseaseFree   49.215899        No Primary Tumor Field                Adjuvant          Last Follow Up    0.0          1497.0
 TCGA-AP-A0LV         0:DiseaseFree   25.084657        No                 NaN                     NaN       Initial Diagnosis    NaN           763.0
 TCGA-AP-A0LV         0:DiseaseFree   25.084657        No                 NaN                     NaN          Last Follow Up    NaN           763.0
-TCGA-AP-A1DH         0:DiseaseFree   71.670447        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN          2180.0
-TCGA-AP-A1DH         0:DiseaseFree   71.670447        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          2180.0
-TCGA-AP-A1DK         0:DiseaseFree   90.968866        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          2767.0
-TCGA-AP-A1DK         0:DiseaseFree   90.968866        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN          2767.0
-TCGA-AP-A1DM         0:DiseaseFree   55.889798        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          1700.0
-TCGA-AP-A1DM         0:DiseaseFree   55.889798        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN          1700.0
+TCGA-AP-A1DH         0:DiseaseFree   71.670447        No Primary Tumor Field                Adjuvant          Last Follow Up    0.0          2180.0
+TCGA-AP-A1DH         0:DiseaseFree   71.670447        No Primary Tumor Field                Adjuvant       Initial Diagnosis    0.0          2180.0
+TCGA-AP-A1DK         0:DiseaseFree   90.968866        No Primary Tumor Field                Adjuvant       Initial Diagnosis    0.0          2767.0
+TCGA-AP-A1DK         0:DiseaseFree   90.968866        No Primary Tumor Field                Adjuvant          Last Follow Up    0.0          2767.0
+TCGA-AP-A1DM         0:DiseaseFree   55.889798        No Primary Tumor Field                Adjuvant       Initial Diagnosis    0.0          1700.0
+TCGA-AP-A1DM         0:DiseaseFree   55.889798        No Primary Tumor Field                Adjuvant          Last Follow Up    0.0          1700.0
 TCGA-AP-A1DO         0:DiseaseFree   31.298287        No                 NaN                     NaN       Initial Diagnosis    NaN           952.0
 TCGA-AP-A1DO         0:DiseaseFree   31.298287        No                 NaN                     NaN          Last Follow Up    NaN           952.0
 TCGA-AP-A1DP 1:Recurred/Progressed   27.320249       Yes Primary Tumor Field                Adjuvant              Metastatic    1.0           831.0
@@ -531,22 +531,22 @@ TCGA-AP-A1DQ 1:Recurred/Progressed   29.753099        No                 NaN    
 TCGA-AP-A1DQ 1:Recurred/Progressed   29.753099        No                 NaN                Adjuvant              Metastatic    1.0           905.0
 TCGA-AP-A1DQ 1:Recurred/Progressed   29.753099        No                 NaN                Adjuvant                DECEASED    1.0           905.0
 TCGA-AP-A1DQ 1:Recurred/Progressed   29.753099        No                 NaN              Recurrence       Initial Diagnosis    1.0           905.0
-TCGA-AP-A1DR         0:DiseaseFree   49.150146        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN          1495.0
-TCGA-AP-A1DR         0:DiseaseFree   49.150146        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1495.0
-TCGA-AP-A1DR         0:DiseaseFree   49.150146        No                 NaN                Adjuvant          Last Follow Up    NaN          1495.0
-TCGA-AP-A1DR         0:DiseaseFree   49.150146        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1495.0
-TCGA-AP-A1DR         0:DiseaseFree   49.150146        No                 NaN                Adjuvant          Last Follow Up    NaN          1495.0
-TCGA-AP-A1DR         0:DiseaseFree   49.150146        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1495.0
-TCGA-AP-A1DR         0:DiseaseFree   49.150146        No                 NaN                Adjuvant          Last Follow Up    NaN          1495.0
-TCGA-AP-A1DR         0:DiseaseFree   49.150146        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          1495.0
+TCGA-AP-A1DR         0:DiseaseFree   49.150146        No Primary Tumor Field                Adjuvant          Last Follow Up    0.0          1495.0
+TCGA-AP-A1DR         0:DiseaseFree   49.150146        No                 NaN                Adjuvant       Initial Diagnosis    0.0          1495.0
+TCGA-AP-A1DR         0:DiseaseFree   49.150146        No                 NaN                Adjuvant          Last Follow Up    0.0          1495.0
+TCGA-AP-A1DR         0:DiseaseFree   49.150146        No                 NaN                Adjuvant       Initial Diagnosis    0.0          1495.0
+TCGA-AP-A1DR         0:DiseaseFree   49.150146        No                 NaN                Adjuvant          Last Follow Up    0.0          1495.0
+TCGA-AP-A1DR         0:DiseaseFree   49.150146        No                 NaN                Adjuvant       Initial Diagnosis    0.0          1495.0
+TCGA-AP-A1DR         0:DiseaseFree   49.150146        No                 NaN                Adjuvant          Last Follow Up    0.0          1495.0
+TCGA-AP-A1DR         0:DiseaseFree   49.150146        No Primary Tumor Field                Adjuvant       Initial Diagnosis    0.0          1495.0
 TCGA-AP-A1DV         0:DiseaseFree    6.706776        No                 NaN                     NaN          Last Follow Up    NaN           204.0
 TCGA-AP-A1DV         0:DiseaseFree    6.706776        No                 NaN                     NaN       Initial Diagnosis    NaN           204.0
-TCGA-AP-A1E0         0:DiseaseFree   60.229477        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1832.0
-TCGA-AP-A1E0         0:DiseaseFree   60.229477        No                 NaN                Adjuvant          Last Follow Up    NaN          1832.0
-TCGA-AP-A1E0         0:DiseaseFree   60.229477        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1832.0
-TCGA-AP-A1E0         0:DiseaseFree   60.229477        No                 NaN                Adjuvant          Last Follow Up    NaN          1832.0
-TCGA-AP-A1E1         0:DiseaseFree   45.862511        No                 NaN                     NaN       Initial Diagnosis    NaN          1395.0
-TCGA-AP-A1E1         0:DiseaseFree   45.862511        No                 NaN                     NaN          Last Follow Up    NaN          1395.0
+TCGA-AP-A1E0         0:DiseaseFree   60.229477        No                 NaN                Adjuvant       Initial Diagnosis    0.0          1832.0
+TCGA-AP-A1E0         0:DiseaseFree   60.229477        No                 NaN                Adjuvant          Last Follow Up    0.0          1832.0
+TCGA-AP-A1E0         0:DiseaseFree   60.229477        No                 NaN                Adjuvant       Initial Diagnosis    0.0          1832.0
+TCGA-AP-A1E0         0:DiseaseFree   60.229477        No                 NaN                Adjuvant          Last Follow Up    0.0          1832.0
+TCGA-AP-A1E1         0:DiseaseFree   45.862511        No                 NaN                     NaN       Initial Diagnosis    0.0          1395.0
+TCGA-AP-A1E1         0:DiseaseFree   45.862511        No                 NaN                     NaN          Last Follow Up    0.0          1395.0
 TCGA-AP-A1E3                   NaN         NaN        No                 NaN                Adjuvant       Initial Diagnosis    NaN           847.0
 TCGA-AP-A1E3                   NaN         NaN        No                 NaN                Adjuvant          Last Follow Up    NaN           847.0
 TCGA-AP-A1E3                   NaN         NaN        No                 NaN                Adjuvant       Initial Diagnosis    NaN           847.0
@@ -595,36 +595,36 @@ TCGA-AX-A05T         0:DiseaseFree   33.205116        No                 NaN    
 TCGA-AX-A05T         0:DiseaseFree   33.205116        No                 NaN                     NaN          Last Follow Up    NaN          1010.0
 TCGA-AX-A05U         0:DiseaseFree   29.687346       NaN                 NaN                     NaN       Initial Diagnosis    NaN           903.0
 TCGA-AX-A05U         0:DiseaseFree   29.687346       NaN                 NaN                     NaN          Last Follow Up    NaN           903.0
-TCGA-AX-A05W         0:DiseaseFree   80.547062        No                 NaN                     NaN       Initial Diagnosis    NaN          2450.0
-TCGA-AX-A05W         0:DiseaseFree   80.547062        No                 NaN                     NaN          Last Follow Up    NaN          2450.0
+TCGA-AX-A05W         0:DiseaseFree   80.547062        No                 NaN                     NaN       Initial Diagnosis    0.0          2450.0
+TCGA-AX-A05W         0:DiseaseFree   80.547062        No                 NaN                     NaN          Last Follow Up    0.0          2450.0
 TCGA-AX-A05Y 1:Recurred/Progressed    6.378012        No                 NaN                     NaN       Initial Diagnosis    NaN          2684.0
 TCGA-AX-A05Y 1:Recurred/Progressed    6.378012        No                 NaN                     NaN          Last Follow Up    NaN          2684.0
-TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                     NaN          Last Follow Up    NaN          2175.0
-TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                     NaN          Last Follow Up    NaN          2175.0
-TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                     NaN       Initial Diagnosis    NaN          2175.0
-TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                     NaN          Last Follow Up    NaN          2175.0
-TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                     NaN       Initial Diagnosis    NaN          2175.0
-TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                     NaN       Initial Diagnosis    NaN          2175.0
-TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                     NaN       Initial Diagnosis    NaN          2175.0
-TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                Adjuvant          Last Follow Up    NaN          2175.0
-TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                Adjuvant       Initial Diagnosis    NaN          2175.0
-TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN Other, Specify In Notes          Last Follow Up    NaN          2175.0
-TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                     NaN          Last Follow Up    NaN          2175.0
-TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN Other, Specify In Notes       Initial Diagnosis    NaN          2175.0
+TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                     NaN          Last Follow Up    0.0          2175.0
+TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                     NaN          Last Follow Up    0.0          2175.0
+TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                     NaN       Initial Diagnosis    0.0          2175.0
+TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                     NaN          Last Follow Up    0.0          2175.0
+TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                     NaN       Initial Diagnosis    0.0          2175.0
+TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                     NaN       Initial Diagnosis    0.0          2175.0
+TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                     NaN       Initial Diagnosis    0.0          2175.0
+TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                Adjuvant          Last Follow Up    0.0          2175.0
+TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                Adjuvant       Initial Diagnosis    0.0          2175.0
+TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN Other, Specify In Notes          Last Follow Up    0.0          2175.0
+TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN                     NaN          Last Follow Up    0.0          2175.0
+TCGA-AX-A05Z         0:DiseaseFree   71.506066        No                 NaN Other, Specify In Notes       Initial Diagnosis    0.0          2175.0
 TCGA-AX-A060         0:DiseaseFree   35.342078       NaN                 NaN                     NaN       Initial Diagnosis    NaN          1075.0
 TCGA-AX-A060         0:DiseaseFree   35.342078       NaN                 NaN                     NaN          Last Follow Up    NaN          1075.0
 TCGA-AX-A062         0:DiseaseFree   45.994017       NaN                 NaN                     NaN          Last Follow Up    0.0          1399.0
 TCGA-AX-A062         0:DiseaseFree   45.994017       NaN                 NaN                     NaN       Initial Diagnosis    0.0          1399.0
 TCGA-AX-A063         0:DiseaseFree   79.462143        No                 NaN                     NaN       Initial Diagnosis    NaN          2417.0
 TCGA-AX-A063         0:DiseaseFree   79.462143        No                 NaN                     NaN          Last Follow Up    NaN          2417.0
-TCGA-AX-A064         0:DiseaseFree   49.873426        No                 NaN                     NaN       Initial Diagnosis    NaN          1517.0
-TCGA-AX-A064         0:DiseaseFree   49.873426        No                 NaN                     NaN          Last Follow Up    NaN          1517.0
-TCGA-AX-A06B         0:DiseaseFree   67.659532        No                 NaN                     NaN       Initial Diagnosis    NaN          2058.0
-TCGA-AX-A06B         0:DiseaseFree   67.659532        No                 NaN                     NaN          Last Follow Up    NaN          2058.0
-TCGA-AX-A06F                   NaN         NaN       NaN                 NaN                Adjuvant          Last Follow Up    NaN          1748.0
-TCGA-AX-A06F                   NaN         NaN       NaN                 NaN                Adjuvant       Initial Diagnosis    NaN          1748.0
-TCGA-AX-A06F                   NaN         NaN       NaN                 NaN                Adjuvant       Initial Diagnosis    NaN          1748.0
-TCGA-AX-A06F                   NaN         NaN       NaN                 NaN                Adjuvant          Last Follow Up    NaN          1748.0
+TCGA-AX-A064         0:DiseaseFree   49.873426        No                 NaN                     NaN       Initial Diagnosis    0.0          1517.0
+TCGA-AX-A064         0:DiseaseFree   49.873426        No                 NaN                     NaN          Last Follow Up    0.0          1517.0
+TCGA-AX-A06B         0:DiseaseFree   67.659532        No                 NaN                     NaN       Initial Diagnosis    0.0          2058.0
+TCGA-AX-A06B         0:DiseaseFree   67.659532        No                 NaN                     NaN          Last Follow Up    0.0          2058.0
+TCGA-AX-A06F                   NaN         NaN       NaN                 NaN                Adjuvant          Last Follow Up    0.0          1748.0
+TCGA-AX-A06F                   NaN         NaN       NaN                 NaN                Adjuvant       Initial Diagnosis    0.0          1748.0
+TCGA-AX-A06F                   NaN         NaN       NaN                 NaN                Adjuvant       Initial Diagnosis    0.0          1748.0
+TCGA-AX-A06F                   NaN         NaN       NaN                 NaN                Adjuvant          Last Follow Up    0.0          1748.0
 TCGA-AX-A06H         0:DiseaseFree   27.386001        No                 NaN                Adjuvant       Initial Diagnosis    NaN           833.0
 TCGA-AX-A06H         0:DiseaseFree   27.386001        No                 NaN                Adjuvant          Last Follow Up    NaN           833.0
 TCGA-AX-A06H         0:DiseaseFree   27.386001        No                 NaN                Adjuvant       Initial Diagnosis    NaN           833.0
@@ -683,8 +683,8 @@ TCGA-AX-A1CF                   NaN         NaN       NaN                 NaN    
 TCGA-AX-A1CF                   NaN         NaN       NaN                 NaN             Progression          Last Follow Up    1.0          1588.0
 TCGA-AX-A1CF                   NaN         NaN       NaN                 NaN             Progression       Initial Diagnosis    1.0          1588.0
 TCGA-AX-A1CF                   NaN         NaN       NaN                 NaN             Progression          Last Follow Up    1.0          1588.0
-TCGA-AX-A1CI                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    NaN          2600.0
-TCGA-AX-A1CI                   NaN         NaN        No                 NaN                     NaN          Last Follow Up    NaN          2600.0
+TCGA-AX-A1CI                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    0.0          2600.0
+TCGA-AX-A1CI                   NaN         NaN        No                 NaN                     NaN          Last Follow Up    0.0          2600.0
 TCGA-AX-A1CJ                   NaN         NaN        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          2233.0
 TCGA-AX-A1CJ                   NaN         NaN        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN          2233.0
 TCGA-AX-A1CK                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    NaN          2441.0
@@ -717,14 +717,14 @@ TCGA-AX-A2HC 1:Recurred/Progressed   24.854522       Yes                 NaN    
 TCGA-AX-A2HC 1:Recurred/Progressed   24.854522       Yes                 NaN                     NaN       Initial Diagnosis    1.0           756.0
 TCGA-AX-A2HD                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    NaN          1414.0
 TCGA-AX-A2HD                   NaN         NaN        No                 NaN                     NaN          Last Follow Up    NaN          1414.0
-TCGA-AX-A2HG         0:DiseaseFree   38.235197        No                 NaN                     NaN       Initial Diagnosis    NaN          1163.0
-TCGA-AX-A2HG         0:DiseaseFree   38.235197        No                 NaN                     NaN          Last Follow Up    NaN          1163.0
+TCGA-AX-A2HG         0:DiseaseFree   38.235197        No                 NaN                     NaN       Initial Diagnosis    0.0          1163.0
+TCGA-AX-A2HG         0:DiseaseFree   38.235197        No                 NaN                     NaN          Last Follow Up    0.0          1163.0
 TCGA-AX-A2HH                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    NaN           540.0
 TCGA-AX-A2HH                   NaN         NaN        No                 NaN                     NaN          Last Follow Up    NaN           540.0
-TCGA-AX-A2HJ         0:DiseaseFree   30.739389        No    Local Recurrence                Adjuvant       Initial Diagnosis    NaN             NaN
-TCGA-AX-A2HJ         0:DiseaseFree   30.739389        No    Local Recurrence                Adjuvant          Last Follow Up    NaN             NaN
-TCGA-AX-A2HJ         0:DiseaseFree   30.739389        No    Local Recurrence                Adjuvant       Initial Diagnosis    NaN             NaN
-TCGA-AX-A2HJ         0:DiseaseFree   30.739389        No    Local Recurrence                Adjuvant          Last Follow Up    NaN             NaN
+TCGA-AX-A2HJ         0:DiseaseFree   30.739389        No    Local Recurrence                Adjuvant       Initial Diagnosis    NaN           326.0
+TCGA-AX-A2HJ         0:DiseaseFree   30.739389        No    Local Recurrence                Adjuvant          Last Follow Up    NaN           326.0
+TCGA-AX-A2HJ         0:DiseaseFree   30.739389        No    Local Recurrence                Adjuvant       Initial Diagnosis    NaN           326.0
+TCGA-AX-A2HJ         0:DiseaseFree   30.739389        No    Local Recurrence                Adjuvant          Last Follow Up    NaN           326.0
 TCGA-AX-A2HK                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    NaN            90.0
 TCGA-AX-A2HK                   NaN         NaN        No                 NaN                     NaN                DECEASED    NaN            90.0
 TCGA-AX-A2IN                   NaN         NaN       Yes        Distant Site                     NaN                DECEASED    NaN           947.0
@@ -881,8 +881,8 @@ TCGA-B5-A11N         0:DiseaseFree   61.676036        No                 NaN    
 TCGA-B5-A11O         0:DiseaseFree   85.774402       Yes                 NaN                     NaN       New Primary Tumor    NaN          2609.0
 TCGA-B5-A11O         0:DiseaseFree   85.774402       Yes                 NaN                     NaN          Last Follow Up    NaN          2609.0
 TCGA-B5-A11O         0:DiseaseFree   85.774402       Yes                 NaN                     NaN       Initial Diagnosis    NaN          2609.0
-TCGA-B5-A11P                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    NaN          1583.0
-TCGA-B5-A11P                   NaN         NaN        No                 NaN                     NaN          Last Follow Up    NaN          1583.0
+TCGA-B5-A11P                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    0.0          1583.0
+TCGA-B5-A11P                   NaN         NaN        No                 NaN                     NaN          Last Follow Up    0.0          1583.0
 TCGA-B5-A11Q         0:DiseaseFree   32.087320        No                 NaN                Adjuvant       Initial Diagnosis    NaN           976.0
 TCGA-B5-A11Q         0:DiseaseFree   32.087320        No                 NaN                Adjuvant          Last Follow Up    NaN           976.0
 TCGA-B5-A11Q         0:DiseaseFree   32.087320        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN           976.0
@@ -987,8 +987,8 @@ TCGA-B5-A1N2 1:Recurred/Progressed   26.432587       Yes                 NaN    
 TCGA-B5-A1N2 1:Recurred/Progressed   26.432587       Yes                 NaN                Adjuvant       Initial Diagnosis    1.0           804.0
 TCGA-B5-A3F9                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    NaN          4155.0
 TCGA-B5-A3F9                   NaN         NaN        No                 NaN                     NaN          Last Follow Up    NaN          4155.0
-TCGA-B5-A3FA                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    NaN          2929.0
-TCGA-B5-A3FA                   NaN         NaN        No                 NaN                     NaN          Last Follow Up    NaN          2929.0
+TCGA-B5-A3FA                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    0.0          2929.0
+TCGA-B5-A3FA                   NaN         NaN        No                 NaN                     NaN          Last Follow Up    0.0          2929.0
 TCGA-B5-A3FB                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    NaN          2844.0
 TCGA-B5-A3FB                   NaN         NaN        No                 NaN                     NaN          Last Follow Up    NaN          2844.0
 TCGA-B5-A3FC                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    NaN          2185.0
@@ -1010,10 +1010,10 @@ TCGA-B5-A3S1         0:DiseaseFree   29.654470        No       Regional Site    
 TCGA-B5-A3S1         0:DiseaseFree   29.654470        No                 NaN                     NaN          Last Follow Up    NaN           902.0
 TCGA-B5-A3S1         0:DiseaseFree   29.654470        No                 NaN                     NaN       Initial Diagnosis    NaN           902.0
 TCGA-B5-A3S1         0:DiseaseFree   29.654470        No                 NaN                     NaN       Initial Diagnosis    NaN           902.0
-TCGA-B5-A5OC                   NaN         NaN        No Primary Tumor Field                     NaN          Last Follow Up    NaN          1249.0
-TCGA-B5-A5OC                   NaN         NaN        No Primary Tumor Field                     NaN       Initial Diagnosis    NaN          1249.0
-TCGA-B5-A5OC                   NaN         NaN        No                 NaN                     NaN          Last Follow Up    NaN          1249.0
-TCGA-B5-A5OC                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    NaN          1249.0
+TCGA-B5-A5OC                   NaN         NaN        No Primary Tumor Field                     NaN          Last Follow Up    0.0          1249.0
+TCGA-B5-A5OC                   NaN         NaN        No Primary Tumor Field                     NaN       Initial Diagnosis    0.0          1249.0
+TCGA-B5-A5OC                   NaN         NaN        No                 NaN                     NaN          Last Follow Up    0.0          1249.0
+TCGA-B5-A5OC                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    0.0          1249.0
 TCGA-B5-A5OD                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    NaN          1038.0
 TCGA-B5-A5OD                   NaN         NaN        No                 NaN                     NaN          Last Follow Up    NaN          1038.0
 TCGA-B5-A5OD                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    NaN          1038.0
@@ -1036,10 +1036,10 @@ TCGA-BG-A0M2         0:DiseaseFree   20.942236        No Primary Tumor Field    
 TCGA-BG-A0M2         0:DiseaseFree   20.942236        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN           637.0
 TCGA-BG-A0M3         0:DiseaseFree   35.210573        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN          1071.0
 TCGA-BG-A0M3         0:DiseaseFree   35.210573        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          1071.0
-TCGA-BG-A0M4         0:DiseaseFree   71.243055        No                 NaN                Adjuvant       Initial Diagnosis    NaN          2167.0
-TCGA-BG-A0M4         0:DiseaseFree   71.243055        No                 NaN                Adjuvant          Last Follow Up    NaN          2167.0
-TCGA-BG-A0M4         0:DiseaseFree   71.243055        No                 NaN                Adjuvant       Initial Diagnosis    NaN          2167.0
-TCGA-BG-A0M4         0:DiseaseFree   71.243055        No                 NaN                Adjuvant          Last Follow Up    NaN          2167.0
+TCGA-BG-A0M4         0:DiseaseFree   71.243055        No                 NaN                Adjuvant       Initial Diagnosis    0.0          2167.0
+TCGA-BG-A0M4         0:DiseaseFree   71.243055        No                 NaN                Adjuvant          Last Follow Up    0.0          2167.0
+TCGA-BG-A0M4         0:DiseaseFree   71.243055        No                 NaN                Adjuvant       Initial Diagnosis    0.0          2167.0
+TCGA-BG-A0M4         0:DiseaseFree   71.243055        No                 NaN                Adjuvant          Last Follow Up    0.0          2167.0
 TCGA-BG-A0M6         0:DiseaseFree   22.060032        No Primary Tumor Field                Adjuvant                DECEASED    NaN           671.0
 TCGA-BG-A0M6         0:DiseaseFree   22.060032        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN           671.0
 TCGA-BG-A0M6         0:DiseaseFree   22.060032        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN           671.0
@@ -1048,20 +1048,20 @@ TCGA-BG-A0M6         0:DiseaseFree   22.060032        No                 NaN    
 TCGA-BG-A0M6         0:DiseaseFree   22.060032        No                 NaN                Adjuvant                DECEASED    NaN           671.0
 TCGA-BG-A0M6         0:DiseaseFree   22.060032        No                 NaN                Adjuvant       Initial Diagnosis    NaN           671.0
 TCGA-BG-A0M6         0:DiseaseFree   22.060032        No                 NaN                Adjuvant                DECEASED    NaN           671.0
-TCGA-BG-A0M7         0:DiseaseFree   63.681494        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          1937.0
-TCGA-BG-A0M7         0:DiseaseFree   63.681494        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN          1937.0
-TCGA-BG-A0M7         0:DiseaseFree   63.681494        No Primary Tumor Field                Adjuvant       Initial Diagnosis    NaN          1937.0
-TCGA-BG-A0M7         0:DiseaseFree   63.681494        No                 NaN                Adjuvant          Last Follow Up    NaN          1937.0
-TCGA-BG-A0M7         0:DiseaseFree   63.681494        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1937.0
-TCGA-BG-A0M7         0:DiseaseFree   63.681494        No Primary Tumor Field                Adjuvant          Last Follow Up    NaN          1937.0
-TCGA-BG-A0M7         0:DiseaseFree   63.681494        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1937.0
-TCGA-BG-A0M7         0:DiseaseFree   63.681494        No                 NaN                Adjuvant          Last Follow Up    NaN          1937.0
-TCGA-BG-A0M7         0:DiseaseFree   63.681494        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1937.0
-TCGA-BG-A0M7         0:DiseaseFree   63.681494        No                 NaN                Adjuvant          Last Follow Up    NaN          1937.0
-TCGA-BG-A0M7         0:DiseaseFree   63.681494        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1937.0
-TCGA-BG-A0M7         0:DiseaseFree   63.681494        No                 NaN                Adjuvant          Last Follow Up    NaN          1937.0
-TCGA-BG-A0M9         0:DiseaseFree   74.629319        No                 NaN                     NaN       Initial Diagnosis    NaN          2270.0
-TCGA-BG-A0M9         0:DiseaseFree   74.629319        No                 NaN                     NaN          Last Follow Up    NaN          2270.0
+TCGA-BG-A0M7         0:DiseaseFree   63.681494        No Primary Tumor Field                Adjuvant       Initial Diagnosis    0.0          1937.0
+TCGA-BG-A0M7         0:DiseaseFree   63.681494        No Primary Tumor Field                Adjuvant          Last Follow Up    0.0          1937.0
+TCGA-BG-A0M7         0:DiseaseFree   63.681494        No Primary Tumor Field                Adjuvant       Initial Diagnosis    0.0          1937.0
+TCGA-BG-A0M7         0:DiseaseFree   63.681494        No                 NaN                Adjuvant          Last Follow Up    0.0          1937.0
+TCGA-BG-A0M7         0:DiseaseFree   63.681494        No                 NaN                Adjuvant       Initial Diagnosis    0.0          1937.0
+TCGA-BG-A0M7         0:DiseaseFree   63.681494        No Primary Tumor Field                Adjuvant          Last Follow Up    0.0          1937.0
+TCGA-BG-A0M7         0:DiseaseFree   63.681494        No                 NaN                Adjuvant       Initial Diagnosis    0.0          1937.0
+TCGA-BG-A0M7         0:DiseaseFree   63.681494        No                 NaN                Adjuvant          Last Follow Up    0.0          1937.0
+TCGA-BG-A0M7         0:DiseaseFree   63.681494        No                 NaN                Adjuvant       Initial Diagnosis    0.0          1937.0
+TCGA-BG-A0M7         0:DiseaseFree   63.681494        No                 NaN                Adjuvant          Last Follow Up    0.0          1937.0
+TCGA-BG-A0M7         0:DiseaseFree   63.681494        No                 NaN                Adjuvant       Initial Diagnosis    0.0          1937.0
+TCGA-BG-A0M7         0:DiseaseFree   63.681494        No                 NaN                Adjuvant          Last Follow Up    0.0          1937.0
+TCGA-BG-A0M9         0:DiseaseFree   74.629319        No                 NaN                     NaN       Initial Diagnosis    0.0          2270.0
+TCGA-BG-A0M9         0:DiseaseFree   74.629319        No                 NaN                     NaN          Last Follow Up    0.0          2270.0
 TCGA-BG-A0MA                   NaN         NaN       Yes                 NaN                     NaN       Initial Diagnosis    1.0            70.0
 TCGA-BG-A0MA                   NaN         NaN       Yes                 NaN                     NaN              Metastatic    1.0            70.0
 TCGA-BG-A0MA                   NaN         NaN       Yes                 NaN                     NaN                DECEASED    1.0            70.0
@@ -1223,20 +1223,20 @@ TCGA-BS-A0T9                   NaN         NaN       NaN                 NaN    
 TCGA-BS-A0T9                   NaN         NaN       NaN                 NaN             Progression                DECEASED    1.0           950.0
 TCGA-BS-A0T9                   NaN         NaN       NaN                 NaN             Progression       Initial Diagnosis    1.0           950.0
 TCGA-BS-A0T9                   NaN         NaN       NaN                 NaN                Adjuvant       Initial Diagnosis    1.0           950.0
-TCGA-BS-A0TA                   NaN         NaN       Yes  Distant Recurrence              Recurrence       Initial Diagnosis    1.0           407.0
-TCGA-BS-A0TA                   NaN         NaN       Yes  Distant Recurrence              Recurrence                DECEASED    1.0           407.0
-TCGA-BS-A0TA                   NaN         NaN       Yes       Regional Site                Adjuvant       Initial Diagnosis    1.0           407.0
-TCGA-BS-A0TA                   NaN         NaN       Yes       Regional Site                Adjuvant                DECEASED    1.0           407.0
-TCGA-BS-A0TA                   NaN         NaN       Yes  Distant Recurrence              Palliative       Initial Diagnosis    1.0           407.0
-TCGA-BS-A0TA                   NaN         NaN       Yes                 NaN                Adjuvant       Initial Diagnosis    1.0           407.0
-TCGA-BS-A0TA                   NaN         NaN       Yes  Distant Recurrence              Palliative                DECEASED    1.0           407.0
-TCGA-BS-A0TA                   NaN         NaN       Yes                 NaN              Recurrence       Initial Diagnosis    1.0           407.0
-TCGA-BS-A0TA                   NaN         NaN       Yes                 NaN              Recurrence                DECEASED    1.0           407.0
-TCGA-BS-A0TA                   NaN         NaN       Yes                 NaN                Adjuvant       Initial Diagnosis    1.0           407.0
-TCGA-BS-A0TA                   NaN         NaN       Yes                 NaN                Adjuvant                DECEASED    1.0           407.0
-TCGA-BS-A0TA                   NaN         NaN       Yes                 NaN              Recurrence       Initial Diagnosis    1.0           407.0
-TCGA-BS-A0TA                   NaN         NaN       Yes                 NaN              Recurrence                DECEASED    1.0           407.0
-TCGA-BS-A0TA                   NaN         NaN       Yes                 NaN                Adjuvant                DECEASED    1.0           407.0
+TCGA-BS-A0TA                   NaN         NaN       Yes  Distant Recurrence              Recurrence       Initial Diagnosis    1.0           455.0
+TCGA-BS-A0TA                   NaN         NaN       Yes  Distant Recurrence              Recurrence                DECEASED    1.0           455.0
+TCGA-BS-A0TA                   NaN         NaN       Yes       Regional Site                Adjuvant       Initial Diagnosis    1.0           455.0
+TCGA-BS-A0TA                   NaN         NaN       Yes       Regional Site                Adjuvant                DECEASED    1.0           455.0
+TCGA-BS-A0TA                   NaN         NaN       Yes  Distant Recurrence              Palliative       Initial Diagnosis    1.0           455.0
+TCGA-BS-A0TA                   NaN         NaN       Yes                 NaN                Adjuvant       Initial Diagnosis    1.0           455.0
+TCGA-BS-A0TA                   NaN         NaN       Yes  Distant Recurrence              Palliative                DECEASED    1.0           455.0
+TCGA-BS-A0TA                   NaN         NaN       Yes                 NaN              Recurrence       Initial Diagnosis    1.0           455.0
+TCGA-BS-A0TA                   NaN         NaN       Yes                 NaN              Recurrence                DECEASED    1.0           455.0
+TCGA-BS-A0TA                   NaN         NaN       Yes                 NaN                Adjuvant       Initial Diagnosis    1.0           455.0
+TCGA-BS-A0TA                   NaN         NaN       Yes                 NaN                Adjuvant                DECEASED    1.0           455.0
+TCGA-BS-A0TA                   NaN         NaN       Yes                 NaN              Recurrence       Initial Diagnosis    1.0           455.0
+TCGA-BS-A0TA                   NaN         NaN       Yes                 NaN              Recurrence                DECEASED    1.0           455.0
+TCGA-BS-A0TA                   NaN         NaN       Yes                 NaN                Adjuvant                DECEASED    1.0           455.0
 TCGA-BS-A0TC         0:DiseaseFree   85.544268       NaN                 NaN                     NaN       Initial Diagnosis    0.0          2602.0
 TCGA-BS-A0TC         0:DiseaseFree   85.544268       NaN                 NaN                     NaN          Last Follow Up    0.0          2602.0
 TCGA-BS-A0TD         0:DiseaseFree   78.212841       NaN                 NaN                     NaN       Initial Diagnosis    0.0          2379.0
@@ -1323,21 +1323,21 @@ TCGA-D1-A0ZN         0:DiseaseFree   16.832692       Yes       Regional Site Oth
 TCGA-D1-A0ZO         0:DiseaseFree   19.791564        No                 NaN                     NaN        Last Known Alive    NaN           602.0
 TCGA-D1-A0ZO         0:DiseaseFree   19.791564        No                 NaN                     NaN       Initial Diagnosis    NaN           602.0
 TCGA-D1-A0ZO         0:DiseaseFree   19.791564        No                 NaN                     NaN          Last Follow Up    NaN           602.0
-TCGA-D1-A0ZP                   NaN         NaN       Yes       Regional Site              Recurrence          Last Follow Up    1.0           725.0
-TCGA-D1-A0ZP                   NaN         NaN       Yes       Regional Site              Recurrence    Locoregional Disease    1.0           725.0
-TCGA-D1-A0ZP                   NaN         NaN       Yes       Regional Site              Recurrence       Initial Diagnosis    1.0           725.0
-TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN              Recurrence          Last Follow Up    1.0           725.0
-TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN              Recurrence    Locoregional Disease    1.0           725.0
-TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN              Recurrence       Initial Diagnosis    1.0           725.0
-TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN              Recurrence          Last Follow Up    1.0           725.0
-TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN              Recurrence    Locoregional Disease    1.0           725.0
-TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN              Recurrence       Initial Diagnosis    1.0           725.0
-TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN                Adjuvant          Last Follow Up    1.0           725.0
-TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN                Adjuvant    Locoregional Disease    1.0           725.0
-TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN                Adjuvant       Initial Diagnosis    1.0           725.0
-TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN                Adjuvant          Last Follow Up    1.0           725.0
-TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN                Adjuvant    Locoregional Disease    1.0           725.0
-TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN                Adjuvant       Initial Diagnosis    1.0           725.0
+TCGA-D1-A0ZP                   NaN         NaN       Yes       Regional Site              Recurrence          Last Follow Up    1.0           818.0
+TCGA-D1-A0ZP                   NaN         NaN       Yes       Regional Site              Recurrence    Locoregional Disease    1.0           818.0
+TCGA-D1-A0ZP                   NaN         NaN       Yes       Regional Site              Recurrence       Initial Diagnosis    1.0           818.0
+TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN              Recurrence          Last Follow Up    1.0           818.0
+TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN              Recurrence    Locoregional Disease    1.0           818.0
+TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN              Recurrence       Initial Diagnosis    1.0           818.0
+TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN              Recurrence          Last Follow Up    1.0           818.0
+TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN              Recurrence    Locoregional Disease    1.0           818.0
+TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN              Recurrence       Initial Diagnosis    1.0           818.0
+TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN                Adjuvant          Last Follow Up    1.0           818.0
+TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN                Adjuvant    Locoregional Disease    1.0           818.0
+TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN                Adjuvant       Initial Diagnosis    1.0           818.0
+TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN                Adjuvant          Last Follow Up    1.0           818.0
+TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN                Adjuvant    Locoregional Disease    1.0           818.0
+TCGA-D1-A0ZP                   NaN         NaN       Yes                 NaN                Adjuvant       Initial Diagnosis    1.0           818.0
 TCGA-D1-A0ZQ         0:DiseaseFree    8.547852        No                 NaN                     NaN        Last Known Alive    NaN           260.0
 TCGA-D1-A0ZQ         0:DiseaseFree    8.547852        No                 NaN                     NaN       Initial Diagnosis    NaN           260.0
 TCGA-D1-A0ZQ         0:DiseaseFree    8.547852        No                 NaN                     NaN          Last Follow Up    NaN           260.0
@@ -1775,8 +1775,8 @@ TCGA-EO-A3AY 1:Recurred/Progressed   38.235197       Yes                 NaN    
 TCGA-EO-A3AY 1:Recurred/Progressed   38.235197       Yes                 NaN                     NaN       Initial Diagnosis    1.0          1163.0
 TCGA-EO-A3AZ         0:DiseaseFree   27.155867        No                 NaN                     NaN       Initial Diagnosis    NaN           826.0
 TCGA-EO-A3AZ         0:DiseaseFree   27.155867        No                 NaN                     NaN          Last Follow Up    NaN           826.0
-TCGA-EO-A3B0                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    NaN          1412.0
-TCGA-EO-A3B0                   NaN         NaN        No                 NaN                     NaN          Last Follow Up    NaN          1412.0
+TCGA-EO-A3B0                   NaN         NaN        No                 NaN                     NaN       Initial Diagnosis    0.0          1412.0
+TCGA-EO-A3B0                   NaN         NaN        No                 NaN                     NaN          Last Follow Up    0.0          1412.0
 TCGA-EO-A3B1         0:DiseaseFree   26.958609        No                 NaN                     NaN          Last Follow Up    NaN           820.0
 TCGA-EO-A3B1         0:DiseaseFree   26.958609        No                 NaN                     NaN       Initial Diagnosis    NaN           820.0
 TCGA-EO-A3B1         0:DiseaseFree   26.958609        No                 NaN                     NaN          Last Follow Up    NaN           820.0
@@ -1933,12 +1933,12 @@ TCGA-EY-A2ON                   NaN         NaN       Yes                 NaN    
 TCGA-EY-A2ON                   NaN         NaN       Yes                 NaN                     NaN                DECEASED    NaN           610.0
 TCGA-EY-A2ON                   NaN         NaN       Yes                 NaN                     NaN       Initial Diagnosis    NaN           610.0
 TCGA-EY-A2ON                   NaN         NaN       Yes                 NaN                     NaN       Initial Diagnosis    NaN           610.0
-TCGA-EY-A2OO         0:DiseaseFree   45.763882        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1392.0
-TCGA-EY-A2OO         0:DiseaseFree   45.763882        No                 NaN                Adjuvant          Last Follow Up    NaN          1392.0
-TCGA-EY-A2OO         0:DiseaseFree   45.763882        No                 NaN                Adjuvant       Initial Diagnosis    NaN          1392.0
-TCGA-EY-A2OO         0:DiseaseFree   45.763882        No                 NaN                Adjuvant          Last Follow Up    NaN          1392.0
-TCGA-EY-A2OO         0:DiseaseFree   45.763882        No       Regional Site                Adjuvant       Initial Diagnosis    NaN          1392.0
-TCGA-EY-A2OO         0:DiseaseFree   45.763882        No       Regional Site                Adjuvant          Last Follow Up    NaN          1392.0
+TCGA-EY-A2OO         0:DiseaseFree   45.763882        No                 NaN                Adjuvant       Initial Diagnosis    0.0          1392.0
+TCGA-EY-A2OO         0:DiseaseFree   45.763882        No                 NaN                Adjuvant          Last Follow Up    0.0          1392.0
+TCGA-EY-A2OO         0:DiseaseFree   45.763882        No                 NaN                Adjuvant       Initial Diagnosis    0.0          1392.0
+TCGA-EY-A2OO         0:DiseaseFree   45.763882        No                 NaN                Adjuvant          Last Follow Up    0.0          1392.0
+TCGA-EY-A2OO         0:DiseaseFree   45.763882        No       Regional Site                Adjuvant       Initial Diagnosis    0.0          1392.0
+TCGA-EY-A2OO         0:DiseaseFree   45.763882        No       Regional Site                Adjuvant          Last Follow Up    0.0          1392.0
 TCGA-EY-A2OP         0:DiseaseFree   31.035276        No                 NaN                     NaN       Initial Diagnosis    NaN           944.0
 TCGA-EY-A2OP         0:DiseaseFree   31.035276        No                 NaN                     NaN          Last Follow Up    NaN           944.0
 TCGA-EY-A2OQ         0:DiseaseFree   29.095572        No                 NaN                     NaN       Initial Diagnosis    NaN           885.0

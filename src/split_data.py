@@ -43,6 +43,7 @@ joblib.dump(mrna_cols, os.path.join(config.SPLIT_DATA_DIR, "mrna_cols.joblib"))
 joblib.dump(mutation_cols, os.path.join(config.SPLIT_DATA_DIR, "mutation_cols.joblib"))
 joblib.dump(preprocessor, os.path.join(config.SPLIT_DATA_DIR, "preprocessor.joblib"))
 
+print("saved new split to: ", config.SPLIT_DATA_DIR)
 
 def compare_train_val_test(train_df, val_df, test_df, clinical_cols, save_table=False, table_fn=''):
     """
