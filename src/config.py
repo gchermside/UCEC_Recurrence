@@ -7,7 +7,6 @@ SPLIT_DATA_DIR = "../split_data/"
 MODEL_DIR = '../models/'
 
 # Data file paths ------------------------------------------------------------------------
-CLINICAL_DATA_PATH = "../data/data_clinical_patient.txt"
 CLINICAL_DATA_PATH = "../ucec_tcga_pan_can_atlas_2018/data_clinical_patient.txt"
 MRNA_DATA_PATH = "../ucec_tcga_pan_can_atlas_2018/data_mrna_seq_v2_rsem_zscores_ref_all_samples.txt"
 TREATMENT_DATA_PATH = "../ucec_tcga_pan_can_atlas_2018/data_timeline_treatment.txt"
@@ -31,30 +30,25 @@ XGB_MODEL_PATH = MODEL_DIR + 'xgboost_model_with_LASSO.pkl'
 
 # Clinical Preprocessing hyperparamters ----------------------------------------------------
 CLINICAL_COLS_TO_REMOVE = [
-    "CANCER_TYPE_ACRONYM",
     "OTHER_PATIENT_ID",
-    "SEX",
-    "AJCC_PATHOLOGIC_TUMOR_STAGE",
-    "DAYS_TO_INITIAL_PATHOLOGIC_DIAGNOSIS",
-    "HISTORY_NEOADJUVANT_TRTYN",
-    "PATH_M_STAGE",
-    "ICD_O_3_SITE", # removed because is the same as ICD_10
-    "ICD_O_3_",
-    "DAYS_LAST_FOLLOWUP",              # follow-up time after diagnosis (future info)
-    "FORM_COMPLETION_DATE",            # administrative metadata, not predictive
-    "INFORMED_CONSENT_VERIFIED",       # administrative, no biological meaning
-    "NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT",  # recurrence event → direct leakage
-    "PERSON_NEOPLASM_CANCER_STATUS",   # disease status at follow-up → leakage
-    "IN_PANCANPATHWAYS_FREEZE",        # technical/analysis flag, not biological
-    "OS_STATUS",                       # overall survival outcome → leakage
-    "OS_MONTHS",                       # overall survival time → leakage
-    "DSS_STATUS",                      # disease-specific survival outcome → leakage
-    "DSS_MONTHS",                      # disease-specific survival time → leakage
-    "DFS_STATUS",                      # disease-free survival outcome → leakage
-    "DFS_MONTHS",                      # disease-free survival time → leakage
-    "PFS_STATUS",                      # progression-free survival outcome → leakage
-    "PFS_MONTHS"                       # progression-free survival time → leakage
+    "AJCC_STAGING_EDITION",
+    "DAYS_LAST_FOLLOWUP",
+    "DAYS_TO_BIRTH",
+    "FORM_COMPLETION_DATE",
+    "NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT",
+    "PERSON_NEOPLASM_CANCER_STATUS",
+    "RADIATION_THERAPY",
+    "IN_PANCANPATHWAYS_FREEZE",
+    "OS_STATUS",
+    "OS_MONTHS",
+    "DSS_STATUS",
+    "DSS_MONTHS",
+    "DFS_STATUS",
+    "DFS_MONTHS",
+    "PFS_STATUS",
+    "PFS_MONTHS"
 ]
+
 
 CATEGORICAL_COLS = ['SUBTYPE',
                     'ETHNICITY', 
@@ -67,7 +61,7 @@ CATEGORICAL_COLS = ['SUBTYPE',
 ]
 
 CLINICAL_MAX_NULL_FRAC = 0.25
-CLINICAL_UNIFORM_THRESH = 0.99
+CLINICAL_UNIFORM_THRESH = 0.90
 
 # Mrna preprocessing hyperparameters ------------------------------------------------------
 

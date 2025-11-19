@@ -22,9 +22,28 @@ import config
 
 #### Loading and Splitting Data ######################################################
 
-def load_clinical_data(clinical_file):
+def load_clinical_data_with_stage(clinical_file, timeline_file):
+    '''Loads in clinical data, incuding the cancer stage at initial daignosis from the timeline_status file'''
+    # Load files
     clinical_df = pd.read_csv(clinical_file, sep="\t", comment="#", low_memory=False)
-    return clinical_df
+    timeline_df = pd.read_csv(timeline_file, sep="\t", comment="#", low_memory=False)
+
+    # Extract initial diagnosis rows
+    init_dx = timeline_df[timeline_df["STATUS"] == "Initial Diagnosis"]
+
+    # Check for duplicates
+    dupes = init_dx[init_dx.duplicated("PATIENT_ID", keep=False)]
+    if len(dupes) > 0:
+        print("WARNING: Duplicate INITIAL DIAGNOSIS entries detected!")
+        print(dupes.sort_values("PATIENT_ID"))
+        raise ValueError("Found duplicate INITIAL DIAGNOSIS entries. Resolve before merging.")
+
+    # Merge CLINICAL_STAGE into the clinical dataframe
+    init_dx = init_dx[["PATIENT_ID", "CLINICAL_STAGE"]]
+    merged = clinical_df.merge(init_dx, on="PATIENT_ID", how="left")
+
+    return merged
+
 
 def load_mrna_data(mrna_file):
     mrna_df = pd.read_csv(mrna_file, sep="\t", comment="#", low_memory=False)
@@ -578,7 +597,7 @@ def load_and_split_data(clinical_file=config.CLINICAL_DATA_PATH,
     """loads data, generates labels, drops patients missing from any dataset, 
     and splits into train/validation/and test sets.
     Returns:"""
-    clinical_df = load_clinical_data(clinical_file)
+    clinical_df = load_clinical_data_with_stage(clinical_file, status_file)
     mrna_df = load_mrna_data(mrna_file)
     mutation_df = load_mutation_data(mutation_file)
 
@@ -623,13 +642,12 @@ def load_and_split_data(clinical_file=config.CLINICAL_DATA_PATH,
         p_thresh=p_thresh,
         random_state=random_state
     )
-
     return (X_train, y_train, X_val, y_val, X_test, y_test, clinical_cols, mrna_cols, mutation_cols)
 
 #### Preprocessors ######################################################
 
 class BasePreprocessor:
-    def __init__(self, max_null_frac=0.3, uniform_thresh=0.99):
+    def __init__(self, max_null_frac, uniform_thresh):
         self.max_null_frac = max_null_frac
         self.uniform_thresh = uniform_thresh
         self.removed_cols_ = []
@@ -651,6 +669,34 @@ class BasePreprocessor:
                     cols_to_drop.append(col)
         return X.drop(columns=cols_to_drop, errors="ignore"), cols_to_drop
 
+    def _get_high_mode_columns(self, X, max_mode_freq=90):
+        """
+        Returns a list of columns whose percent mode frequency exceeds max_mode_freq.
+        
+        Parameters:
+            X (pd.DataFrame): Input dataframe.
+            max_mode_freq (float): Maximum allowed percent mode frequency (0-100).
+            
+        Returns:
+            List[str]: Columns exceeding the threshold.
+        """
+        high_mode_cols = []
+    
+        for col in X.columns:
+            # Skip empty columns
+            mode_vals = X[col].mode(dropna=True)
+            if len(mode_vals) == 0:
+                continue
+    
+            mode_val = mode_vals.iloc[0]
+            percent_mode = (X[col] == mode_val).mean() * 100
+    
+            if percent_mode > max_mode_freq:
+                high_mode_cols.append(col)
+    
+        return high_mode_cols
+    
+
 
 class ClinicalPreprocessor(BasePreprocessor):
     def __init__(self, cols_to_remove=config.CLINICAL_COLS_TO_REMOVE, categorical_cols=config.CATEGORICAL_COLS, max_null_frac=config.MAX_NULL_FRAC, uniform_thresh=config.UNIFORM_THRESHOLD):
@@ -663,18 +709,7 @@ class ClinicalPreprocessor(BasePreprocessor):
         self.columns_ = None  # final column order
         self.num_fill_values_ = {}
         self.cat_fill_values_ = {}
-    
-    # def _drop_highly_uniform_columns(self, X):
-    #     """Identifies highly uniform columns (> threshold same value)."""
-    #     cols_to_drop = []
-    #     for col in X.columns:
-    #         non_na_values = X[col].dropna()
-    #         if not non_na_values.empty:
-    #             top_freq = non_na_values.value_counts(normalize=True).iloc[0]
-    #             if top_freq > self.uniform_thresh:
-    #                 cols_to_drop.append(col)
-    #     return cols_to_drop
-    
+        
     def fit(self, X, y=None):
         # --- Step 1. Drop specified columns
         removed = [c for c in self.cols_to_remove if c in X.columns]
@@ -685,7 +720,12 @@ class ClinicalPreprocessor(BasePreprocessor):
         removed.extend(high_null_cols)
         
         # --- Step 3. Drop highly uniform columns
-        uniform_cols, cols_to_remove = self._drop_highly_uniform_columns(X)
+        modified_df, cols_to_remove = self._drop_highly_uniform_columns(X)
+        # Compute percent mode frequency for each column
+        cols_to_remove_new_func = self.get_high_mode_columns(X, self.uniform_thresh)
+        if cols_to_remove != cols_to_remove_new_func:
+            raise ValueError(f"New uniform function doesn't match old one: {cols_to_remove!r} != {cols_to_remove_new_func!r}")
+
         removed.extend(cols_to_remove)
 
         # --- Step 4. Drop all identified columns
