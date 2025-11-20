@@ -110,7 +110,6 @@ def load_mutation_data(mutation_file):
     # Crosstab to patient × gene mutation matrix
     mut_df = pd.crosstab(df["Patient_ID"], df["Hugo_Symbol"]).astype(float)
     mut_df.columns = mut_df.columns.astype(str) + "_mut"
-    mut_df[mut_df > 1] = 1  # Binarize: presence/absence of mutation
     
     return mut_df
 
@@ -667,36 +666,8 @@ class BasePreprocessor:
                 top_freq = non_na.value_counts(normalize=True).iloc[0]
                 if top_freq > self.uniform_thresh:
                     cols_to_drop.append(col)
-        return X.drop(columns=cols_to_drop, errors="ignore"), cols_to_drop
-
-    def _get_high_mode_columns(self, X, max_mode_freq=90):
-        """
-        Returns a list of columns whose percent mode frequency exceeds max_mode_freq.
+        return X.drop(columns=cols_to_drop, errors="ignore"), cols_to_drop    
         
-        Parameters:
-            X (pd.DataFrame): Input dataframe.
-            max_mode_freq (float): Maximum allowed percent mode frequency (0-100).
-            
-        Returns:
-            List[str]: Columns exceeding the threshold.
-        """
-        high_mode_cols = []
-    
-        for col in X.columns:
-            # Skip empty columns
-            mode_vals = X[col].mode(dropna=True)
-            if len(mode_vals) == 0:
-                continue
-    
-            mode_val = mode_vals.iloc[0]
-            percent_mode = (X[col] == mode_val).mean() * 100
-    
-            if percent_mode > max_mode_freq:
-                high_mode_cols.append(col)
-    
-        return high_mode_cols
-    
-
 
 class ClinicalPreprocessor(BasePreprocessor):
     def __init__(self, cols_to_remove=config.CLINICAL_COLS_TO_REMOVE, categorical_cols=config.CATEGORICAL_COLS, max_null_frac=config.MAX_NULL_FRAC, uniform_thresh=config.UNIFORM_THRESHOLD):
@@ -721,10 +692,6 @@ class ClinicalPreprocessor(BasePreprocessor):
         
         # --- Step 3. Drop highly uniform columns
         modified_df, cols_to_remove = self._drop_highly_uniform_columns(X)
-        # Compute percent mode frequency for each column
-        cols_to_remove_new_func = self.get_high_mode_columns(X, self.uniform_thresh)
-        if cols_to_remove != cols_to_remove_new_func:
-            raise ValueError(f"New uniform function doesn't match old one: {cols_to_remove!r} != {cols_to_remove_new_func!r}")
 
         removed.extend(cols_to_remove)
 
@@ -810,119 +777,16 @@ class MrnaPreprocessor(BasePreprocessor):
         self.columns_ = None
         self.selection_freq_ = None
 
-    def _drop_highly_uniform_columns(self, X):
-        """Identify and drop highly uniform columns (> threshold)."""
-        cols_to_drop = []
-        for col in X.columns:
-            non_na_values = X[col].dropna()
-            if not non_na_values.empty:
-                top_freq = non_na_values.value_counts(normalize=True).iloc[0]
-                if top_freq > self.uniform_thresh:
-                    cols_to_drop.append(col)
-        return X.drop(columns=cols_to_drop), cols_to_drop
-
-    def _prune_correlated_features(self, X):
-        """Prune correlated features above correlation threshold."""
-        corr_matrix = X.corr().abs()
-        np.fill_diagonal(corr_matrix.values, 0)
-
-        high_corr_map = {
-            gene: set(corr_matrix.index[corr_matrix.loc[gene] >= self.corr_thresh])
-            for gene in corr_matrix.columns
-        }
-
-        genes_to_keep = set(corr_matrix.columns)
-        genes_to_remove = set()
-
-        while True:
-            correlated_genes = {g: nbrs for g, nbrs in high_corr_map.items() if nbrs & genes_to_keep}
-            if not correlated_genes:
-                break
-
-            degrees = {g: len(nbrs & genes_to_keep) for g, nbrs in correlated_genes.items() if g in genes_to_keep}
-            if not degrees:
-                break
-
-            worst_gene = max(degrees, key=lambda g: degrees[g])
-
-            if worst_gene in self.literature_genes:
-                neighbors = correlated_genes[worst_gene] & genes_to_keep
-                non_lit_neighbors = [n for n in neighbors if n not in self.literature_genes]
-                if non_lit_neighbors:
-                    worst_gene = min(non_lit_neighbors, key=lambda n: X[n].var())
-                else:
-                    break
-            else:
-                ties = [g for g, d in degrees.items() if d == degrees[worst_gene]]
-                if len(ties) > 1:
-                    worst_gene = min(ties, key=lambda g: X[g].var())
-            
-            genes_to_remove.add(worst_gene)
-            genes_to_keep.remove(worst_gene)
-
-        return X[list(genes_to_keep)], genes_to_remove
-
-    def _stability_feature_selection(self, X, y):
-        """Bootstrap stability-based feature selection (Jessie’s approach)."""
-        np.random.seed(self.random_state)
-        feature_counts = pd.Series(0, index=X.columns)
-
-        for i in range(self.n_boots):
-            X_boot, y_boot = resample(
-                X, y,
-                stratify=y,
-                n_samples=len(y),
-                replace=True,
-                random_state=self.random_state+i
-            )
-            selector = SelectFpr(score_func=f_classif, alpha=self.fpr_alpha)
-            selector.fit(X_boot, y_boot)
-            selected = X_boot.columns[selector.get_support()]
-            feature_counts[selected] += 1
-
-        selection_freq = feature_counts / self.n_boots
-        selected_features = selection_freq[selection_freq >= self.stability_threshold].index.tolist()
-
-        self.selection_freq_ = selection_freq
-        return X[selected_features], list(set(X.columns) - set(selected_features))
-
     def fit(self, X, y=None):
         removed = []
 
-        # Step 1. Drop columns with too many nulls
+        # Drop columns with too many nulls
         high_null_cols = [c for c in X.columns if X[c].isna().sum() > len(X) * self.max_null_frac]
         removed.extend(high_null_cols)
         X_temp = X.drop(columns=high_null_cols, errors="ignore")
-
-        # Step 2. Drop highly uniform columns
-        X_temp, uniform_cols = self._drop_highly_uniform_columns(X_temp)
-        removed.extend(uniform_cols)
-
-        # Step 3. Fill NaNs with median
-        self.medians_ = X_temp.median().to_dict()
-        X_temp = X_temp.fillna(self.medians_)
-
-        # Step 4. Variance filter
-        low_var_cols = [c for c in X_temp.columns if X_temp[c].var() < self.var_thresh]
-        X_temp = X_temp.drop(columns=low_var_cols, errors="ignore")
-        removed.extend(low_var_cols)
-
-        # Step 5. Prune correlated features
-        if self.re_run_pruning:
-            X_temp, correlated_genes = self._prune_correlated_features(X_temp)
-            joblib.dump(correlated_genes, self.correlated_genes_path)
-            removed.extend(correlated_genes)
-        else:
-            correlated_genes = joblib.load(self.correlated_genes_path)
-            X_temp = X_temp.drop(columns=correlated_genes, errors="ignore")
-            removed.extend(correlated_genes)
-
-        # Step 6. Stability-based selection
-        if self.use_stability_selection:
-            if y is None:
-                raise ValueError("y labels required for stability-based feature selection")
-            X_temp, dropped_stability = self._stability_feature_selection(X_temp, y)
-            removed.extend(dropped_stability)
+        
+        if X_temp.isna().any().any():
+            raise ValueError("NaN values detected in X_temp, expected none.")
 
         # Save final state
         self.removed_cols_ = list(set(removed))
@@ -933,18 +797,6 @@ class MrnaPreprocessor(BasePreprocessor):
     def transform(self, X):
         # Drop known removed cols
         X = X.drop(columns=[c for c in self.removed_cols_ if c in X.columns], errors="ignore")
-
-        # Fill NaNs with median
-        X = X.fillna(self.medians_)
-
-        # Check column alignment
-        missing = set(self.columns_) - set(X.columns)
-        extra = set(X.columns) - set(self.columns_)
-        if missing or extra:
-            raise ValueError(
-                f"Column mismatch! Missing: {missing}, Extra: {extra}, "
-                f"{len(missing)} missing, {len(extra)} extra"
-            )
 
         # Reorder X to match training column order
         X = X[self.columns_]
@@ -968,22 +820,15 @@ class MutationPreprocessor(BasePreprocessor):
     def fit(self, X, y=None):
         removed = []
 
-        # Step 1. Convert counts to binary mutation 0 or 1(at least one mutation)
-        X_temp = (X > 0).astype(int) # Convert counts to binary
-        # TODO: consider filtering common passenger genes, TTN, MUC16, etc.
+        # Clip mutation counts above 10 because these are often due to passenger genes, not valueable information
+        X = X.clip(upper=10)
 
-        # Step 2. Drop columns with too many nulls
-        high_null_cols = [c for c in X_temp.columns if X_temp[c].isna().sum() > len(X_temp) * self.max_null_frac]
-        removed.extend(high_null_cols)
-        X_temp = X_temp.drop(columns=high_null_cols, errors="ignore")
-
-        # Step 3. Drop highly uniform columns
-        X_temp, uniform_cols = self._drop_highly_uniform_columns(X_temp)
+        # Drop highly uniform columns
+        X_temp, uniform_cols = self._drop_highly_uniform_columns(X)
         removed.extend(uniform_cols)
 
-        # Step 4. Fill NaNs with median
-        self.medians_ = X_temp.median().to_dict()
-        X_temp = X_temp.fillna(self.medians_)
+        if X.isna().any().any():
+            raise ValueError("NaN values detected in mutation_df, expected none.")
 
         # Save final state
         self.removed_cols_ = list(set(removed))
@@ -994,9 +839,6 @@ class MutationPreprocessor(BasePreprocessor):
     def transform(self, X):
         # Drop known removed cols
         X = X.drop(columns=[c for c in self.removed_cols_ if c in X.columns], errors="ignore")
-
-        # Fill NaNs with median
-        X = X.fillna(self.medians_)
 
         # Check column alignment
         missing = set(self.columns_) - set(X.columns)
