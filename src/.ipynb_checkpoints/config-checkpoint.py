@@ -66,7 +66,7 @@ CLINICAL_UNIFORM_THRESH = 0.90
 
 # Mrna preprocessing hyperparameters ------------------------------------------------------
 
-MAX_NULL_FRAC = 0.50
+MAX_NULL_FRAC = 0.50 #FIXME SHOULD BE 0.25
 UNIFORM_THRESHOLD = 0.99
 CORRELATION_THRESHOLD = 0.9
 VARIANCE_THRESHOLD = 1e-5
@@ -89,13 +89,12 @@ N_BOOTS_KBEST = 50
 THRESHOLD_KBEST = 0.4
 
 # Mutation preprocessing hyperparameters ----------------------------------------------------
-MUTATION_COLS_TO_REMOVE = [] # consider removing common passenger genes
-MUTATION_MAX_NULL_FRAC = 0.3 #FIXME: unneccesary, no NaNs
-MUTATION_UNIFORM_THRESH = 0.99
+MAX_MUTATION_COUNT = 5
+MUTATION_UNIFORM_THRESH = 0.98
 
 
 # Experiment metadata
-SEED = 100
+SEED = 42
 CLIN_COLS_TO_STRATIFY_ON = ['SUBTYPE', 'AGE', 'RACE', 'ETHNICITY', 'ICD_10', 'ICD_O_3_HISTOLOGY', 'NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT', 'PATH_T_STAGE', 'PATH_N_STAGE', 'PATH_M_STAGE', 'OS_STATUS', 'DSS_STATUS', 'DFS_STATUS', 'PFS_STATUS', 'CLINICAL_STAGE']
 P_VALUE_STRATIFICATION = 0.05
 TEST_SIZE = 0.15

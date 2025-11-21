@@ -747,28 +747,9 @@ class MrnaPreprocessor(BasePreprocessor):
     def __init__(self,
             max_null_frac=config.MAX_NULL_FRAC,
             uniform_thresh=config.UNIFORM_THRESHOLD,
-            corr_thresh=config.CORRELATION_THRESHOLD,
-            var_thresh=config.VARIANCE_THRESHOLD,
-            re_run_pruning=config.RE_RUN_PRUNING,
-            literature_genes=config.LITERATURE_GENES,
-            correlated_genes_path=config.CORRELATED_GENES_PATH,
-            use_stability_selection=config.USE_STABILITY_SELECTION,
-            n_boots=config.N_BOOTS_FPR,
-            fpr_alpha=config.FPR_ALPHA,
-            stability_threshold=config.STABILITY_THRESHOLD_FPR,
             random_state=config.SEED):
         super().__init__(max_null_frac=max_null_frac, uniform_thresh=uniform_thresh)
-        self.corr_thresh = corr_thresh
-        self.var_thresh = var_thresh
-        self.re_run_pruning = re_run_pruning
-        self.literature_genes = literature_genes
-        self.correlated_genes_path = correlated_genes_path
 
-        # Stability selection params
-        self.use_stability_selection = use_stability_selection
-        self.n_boots = n_boots
-        self.fpr_alpha = fpr_alpha
-        self.stability_threshold = stability_threshold
         self.random_state = random_state
 
         # Saved state after fit
@@ -806,12 +787,13 @@ class MrnaPreprocessor(BasePreprocessor):
 
 class MutationPreprocessor(BasePreprocessor):
     def __init__(self,
-                max_null_frac=config.MUTATION_MAX_NULL_FRAC,
+                max_mutation_count=config.MAX_MUTATION_COUNT,
                 uniform_thresh=config.MUTATION_UNIFORM_THRESH
                  ):
-        super().__init__(max_null_frac=max_null_frac, uniform_thresh=uniform_thresh)
+        super().__init__(max_null_frac=0, uniform_thresh=uniform_thresh)
 
         # Saved state after fit
+        self.max_mutation_count = max_mutation_count
         self.removed_cols_ = []
         self.medians_ = {}
         self.columns_ = None
@@ -821,7 +803,7 @@ class MutationPreprocessor(BasePreprocessor):
         removed = []
 
         # Clip mutation counts above 10 because these are often due to passenger genes, not valueable information
-        X = X.clip(upper=10)
+        X = X.clip(upper=self.max_mutation_count)
 
         # Drop highly uniform columns
         X_temp, uniform_cols = self._drop_highly_uniform_columns(X)
@@ -919,59 +901,6 @@ class BootstrappedSelectKBest(BaseEstimator, TransformerMixin):
     def get_support(self):
         """Boolean mask of selected features (like SelectKBest)."""
         return [col in self.selected_features_ for col in self.feature_freq_.index]
-
-
-# class StabilitySelection(BaseEstimator, TransformerMixin):
-#     def __init__(self, n_boots=config.N_BOOTS_FPR, fpr_alpha=config.FPR_ALPHA, stability_threshold=config.STABILITY_THRESHOLD_FPR, random_state=config.SEED):
-#         """
-#         Bootstrap stability-based feature selection using SelectFpr.
-
-#         Parameters
-#         ----------
-#         n_boots : int
-#             Number of bootstrap samples.
-#         fpr_alpha : float
-#             Alpha level for SelectFpr.
-#         stability_threshold : float (0-1)
-#             Minimum fraction of bootstraps a feature must appear in to be kept.
-#         random_state : int, optional
-#             Random seed for reproducibility.
-#         """
-#         self.n_boots = n_boots
-#         self.fpr_alpha = fpr_alpha
-#         self.stability_threshold = stability_threshold
-#         self.random_state = random_state
-
-#     def fit(self, X, y):
-#         np.random.seed(self.random_state)
-#         feature_counts = pd.Series(0, index=X.columns, dtype=int)
-
-#         for i in range(self.n_boots):
-#             # Bootstrap sample
-#             X_boot, y_boot = resample(
-#                 X, y,
-#                 stratify=y,
-#                 n_samples=len(y),
-#                 replace=True,
-#                 random_state=(self.random_state + i) if self.random_state is not None else None
-#             )
-#             selector = SelectFpr(score_func=f_classif, alpha=self.fpr_alpha)
-#             selector.fit(X_boot, y_boot)
-
-#             selected = X_boot.columns[selector.get_support()]
-#             feature_counts[selected] += 1
-
-#         # Compute frequency of selection
-#         self.selection_freq_ = feature_counts / self.n_boots
-#         self.selected_features_ = self.selection_freq_[self.selection_freq_ >= self.stability_threshold].index.tolist()
-#         return self
-
-#     def transform(self, X):
-#         return X[self.selected_features_]
-
-#     def get_support(self):
-#         """Boolean mask of selected features."""
-#         return [col in self.selected_features_ for col in self.selection_freq_.index]
 
 
 class StabilitySelection(BaseEstimator, TransformerMixin):
