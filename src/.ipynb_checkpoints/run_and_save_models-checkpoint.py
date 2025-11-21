@@ -22,7 +22,22 @@ import config
 # Load everything
 X_train = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "X_train.joblib"))
 y_train = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "y_train.joblib"))
-preprocessor = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "preprocessor.joblib"))
+clinical_cols = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "clinical_cols.joblib"))
+mrna_cols = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "mrna_cols.joblib"))
+mutation_cols = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "mutation_cols.joblib"))
+
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ("clinical", ClinicalPreprocessorWrapper(), clinical_cols),
+
+        ("mrna", MrnaPreprocessorWrapper(), mrna_cols),
+
+        ("mutation", MutationPreprocessorWrapper(), mutation_cols),
+    ]
+)
+
+preprocessor.set_output(transform="pandas") # otherwise, output is converted to numpy array
 
 cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=config.SEED)
 

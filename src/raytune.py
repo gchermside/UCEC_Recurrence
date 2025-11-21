@@ -1,30 +1,21 @@
 # Imports
 import os
+import pandas as pd
 import torch
 from torch import nn
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, TensorDataset
 import joblib
 import random
 import pickle
 import numpy as np
 from statistics import mean, stdev
-from sklearn.metrics import roc_auc_score, precision_score, recall_score, confusion_matrix, f1_score
-from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.metrics import roc_auc_score, precision_score, recall_score, confusion_matrix, f1_score, average_precision_score
+from sklearn.feature_selection import SelectKBest, f_classif, SelectFromModel
 from sklearn.model_selection import RepeatedStratifiedKFold
 from itertools import product
-from sklearn.model_selection import RepeatedStratifiedKFold
-from sklearn.metrics import (
-    roc_auc_score, precision_score, recall_score, f1_score,
-    average_precision_score, confusion_matrix
-)
-from sklearn.feature_selection import SelectFromModel
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from xgboost import XGBClassifier
-from statistics import mean, stdev
-import numpy as np
-import torch, random, torch.nn as nn
-from torch.utils.data import DataLoader, TensorDataset
 import config
 from preprocessing_utils import *
 from model_utils import *
@@ -53,6 +44,7 @@ class MultimodalDataset(Dataset):
             torch.tensor(self.labels[idx], dtype=torch.float32)
         )
 
+# Load splits and column lists
 X_train = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "X_train.joblib"))
 y_train = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "y_train.joblib"))
 X_val = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "X_val.joblib"))
@@ -84,7 +76,11 @@ mrna_testval = X_testval[mrna_cols]
 mutation_testval = X_testval[mutation_cols]
 
 def to_loader(c, m, mu, y, shuffle=False):
-    
+    """
+    Convert pandas DataFrames / numpy arrays to a PyTorch DataLoader.
+    Includes a numeric check and prints warnings if non-numeric columns
+    are present.
+    """
     def check_numeric(df, name):
         if isinstance(df, np.ndarray):
             df = pd.DataFrame(df)
@@ -109,10 +105,10 @@ def to_loader(c, m, mu, y, shuffle=False):
     y = y.squeeze() # converts from [x, 1] to [x] shape
 
     ds = TensorDataset(
-        torch.tensor(c),
-        torch.tensor(m),
-        torch.tensor(mu),
-        torch.tensor(y)
+        torch.tensor(c, dtype=torch.float32),
+        torch.tensor(m, dtype=torch.float32),
+        torch.tensor(mu, dtype=torch.float32),
+        torch.tensor(y, dtype=torch.float32)
     )
     return DataLoader(ds, batch_size=config.BATCH_SIZE, shuffle=shuffle)
 
@@ -312,6 +308,17 @@ def run_kfold_gridsearch_with_preprocessing(
             mrna_model_cls = param_dict["mrna_model"]  # e.g., LogisticRegression, RandomForestClassifier
             mrna_model_params = param_dict.get("mrna_model_params", {})  # estimator hyperparameters
             
+            # If using XGBClassifier, inject safe/effective defaults for SelectFromModel
+            if mrna_model_cls is XGBClassifier:
+                # ensure importance_type is gain so feature_importances_ is meaningful
+                mrna_model_params = {
+                    **mrna_model_params,
+                    "importance_type": "gain",
+                    "use_label_encoder": False,
+                    "eval_metric": "logloss",
+                    "random_state": config.SEED,
+                }
+            
             sfm_mrna = SelectFromModel(
                 estimator=mrna_model_cls(**mrna_model_params),
                 threshold=param_dict.get("mrna_threshold", "median"),
@@ -327,6 +334,15 @@ def run_kfold_gridsearch_with_preprocessing(
             # === SelectFromModel for mutation ===
             mut_model_cls = param_dict["mut_model"]
             mut_model_params = param_dict.get("mut_model_params", {})
+            
+            if mut_model_cls is XGBClassifier:
+                mut_model_params = {
+                    **mut_model_params,
+                    "importance_type": "gain",
+                    "use_label_encoder": False,
+                    "eval_metric": "logloss",
+                    "random_state": config.SEED,
+                }
             
             sfm_mut = SelectFromModel(
                 estimator=mut_model_cls(**mut_model_params),
@@ -395,37 +411,35 @@ def run_kfold_gridsearch_with_preprocessing(
     print(f"\n=== Best hyperparameters: {best_hyperparams} (mean F1 = {best_score:.4f}) ===")
     return results_summary, best_hyperparams
 
-#### Random Forest PARAM_GRID ###################################################################
-from sklearn.ensemble import RandomForestClassifier
-
+#### XGBoost PARAM_GRID ###################################################################
 param_grid = {
     # Models for mRNA
     "mrna_model": [
-        RandomForestClassifier,
+        XGBClassifier,
     ],
 
-    # Hyperparameters for mRNA model (reduced to 1 stable config)
+    # Hyperparameters for each mRNA model (small set so it runs quickly)
     "mrna_model_params": [
-        {"n_estimators": 300, "max_depth": 10},
+        {"n_estimators": 200, "max_depth": 3, "learning_rate": 0.05, "subsample": 0.9},
     ],
 
-    # Thresholds for mRNA selection (reduced)
-    "mrna_threshold": ["median", "mean"],
-    "mrna_max_features": [None, 150],  # reduced from [None, 100, 200]
+    # Thresholds for mRNA selection
+    "mrna_threshold": ["median"],
+    "mrna_max_features": [None],
 
     # Models for mutation
     "mut_model": [
-        RandomForestClassifier,
+        XGBClassifier,
     ],
 
-    # Hyperparameters for mutation model (reduced to 1)
+    # Hyperparameters for each mutation model
     "mut_model_params": [
-        {"n_estimators": 300, "max_depth": 10},
+        {"n_estimators": 200, "max_depth": 3, "learning_rate": 0.05, "subsample": 0.9},
     ],
 
-    # Thresholds for mutation selection (reduced)
-    "mut_threshold": ["median", "mean"],
-    "mut_max_features": [None, 75],  # reduced from [None, 50, 100]
+    # Thresholds for mutation selection
+    "mut_threshold": ["median"],
+    "mut_max_features": [None],
 
     # NN hyperparameters
     "hidden_dim": [64],
@@ -524,4 +538,4 @@ def print_results_summary(results_summary):
     print("#"*60 + "\n")
 
 print_results_summary(results_summary)
-joblib.dump(results_summary, "results_summary_random_forest.pkl")
+joblib.dump(results_summary, "results_summary_xgb.pkl")
