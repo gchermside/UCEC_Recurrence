@@ -14,6 +14,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_selection import SelectFpr, f_classif, chi2
 from sklearn.utils import resample
+from sklearn.preprocessing import RobustScaler
 
 from scipy.stats import chi2_contingency, mannwhitneyu
 from statsmodels.stats.multitest import multipletests
@@ -22,10 +23,16 @@ import config
 
 #### Loading and Splitting Data ######################################################
 
-def load_clinical_data_with_stage(clinical_file, timeline_file):
-    '''Loads in clinical data, incuding the cancer stage at initial daignosis from the timeline_status file'''
+
+def load_clinical_data(clinical_patient_file, clinical_sample_file, timeline_file):
+    '''Loads in clinical data, from both the patient and sample files. These files share the same patients. 
+    Loads the Tumor Stage at inital diagnosis from the timeline status file.'''
     # Load files
-    clinical_df = pd.read_csv(clinical_file, sep="\t", comment="#", low_memory=False)
+    clinical_patient_file = pd.read_csv(clinical_patient_file, sep="\t", comment="#", low_memory=False)
+    clinical_sample_file = pd.read_csv(clinical_sample_file, sep="\t", comment="#", low_memory=False)
+
+    clinical_df = clinical_patient_file.merge(clinical_sample_file, on="PATIENT_ID", how="left")
+    
     timeline_df = pd.read_csv(timeline_file, sep="\t", comment="#", low_memory=False)
 
     # Extract initial diagnosis rows
@@ -38,7 +45,6 @@ def load_clinical_data_with_stage(clinical_file, timeline_file):
         print(dupes.sort_values("PATIENT_ID"))
         raise ValueError("Found duplicate INITIAL DIAGNOSIS entries. Resolve before merging.")
 
-    # Merge CLINICAL_STAGE into the clinical dataframe
     init_dx = init_dx[["PATIENT_ID", "CLINICAL_STAGE"]]
     merged = clinical_df.merge(init_dx, on="PATIENT_ID", how="left")
 
@@ -582,7 +588,8 @@ def stratified_split_with_balance_check(
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 
-def load_and_split_data(clinical_file=config.CLINICAL_DATA_PATH,
+def load_and_split_data(clinical_patient_file=config.CLINICAL_DATA_PATH,
+                        clinical_sample_file=config.SAMPLE_CLINICAL_DATA_PATH,
                         mrna_file=config.MRNA_DATA_PATH,
                         mutation_file=config.MUTATION_DATA_PATH,
                         treatment_file=config.TREATMENT_DATA_PATH,
@@ -596,7 +603,7 @@ def load_and_split_data(clinical_file=config.CLINICAL_DATA_PATH,
     """loads data, generates labels, drops patients missing from any dataset, 
     and splits into train/validation/and test sets.
     Returns:"""
-    clinical_df = load_clinical_data_with_stage(clinical_file, status_file)
+    clinical_df = load_clinical_data(clinical_patient_file, clinical_sample_file, status_file)
     mrna_df = load_mrna_data(mrna_file)
     mutation_df = load_mutation_data(mutation_file)
 
@@ -757,6 +764,7 @@ class MrnaPreprocessor(BasePreprocessor):
         self.medians_ = {}
         self.columns_ = None
         self.selection_freq_ = None
+
 
     def fit(self, X, y=None):
         removed = []

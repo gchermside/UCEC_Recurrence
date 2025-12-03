@@ -8,6 +8,7 @@ MODEL_DIR = '../models/'
 
 # Data file paths ------------------------------------------------------------------------
 CLINICAL_DATA_PATH = "../ucec_tcga_pan_can_atlas_2018/data_clinical_patient.txt"
+SAMPLE_CLINICAL_DATA_PATH = "../ucec_tcga_pan_can_atlas_2018/data_clinical_sample.txt"
 MRNA_DATA_PATH = "../ucec_tcga_pan_can_atlas_2018/data_mrna_seq_v2_rsem_zscores_ref_all_samples.txt"
 TREATMENT_DATA_PATH = "../ucec_tcga_pan_can_atlas_2018/data_timeline_treatment.txt"
 STATUS_DATA_PATH = "../ucec_tcga_pan_can_atlas_2018/data_timeline_status.txt"
@@ -46,7 +47,17 @@ CLINICAL_COLS_TO_REMOVE = [
     "DFS_STATUS",
     "DFS_MONTHS",
     "PFS_STATUS",
-    "PFS_MONTHS"
+    "PFS_MONTHS",
+    "CANCER_TYPE",
+    "CANCER_TYPE_DETAILED",
+    "TUMOR_TYPE",
+    "TISSUE_PROSPECTIVE_COLLECTION_INDICATOR",
+    "TISSUE_RETROSPECTIVE_COLLECTION_INDICATOR",
+    "TUMOR_TISSUE_SITE",
+    "SAMPLE_TYPE",
+    "SOMATIC_STATUS",
+    "TISSUE_SOURCE_SITE",
+    "TISSUE_SOURCE_SITE_CODE"
 ]
 
 
@@ -58,7 +69,9 @@ CATEGORICAL_COLS = ['SUBTYPE',
                     "RACE", 
                     "RADIATION_THERAPY", 
                     "GENETIC_ANCESTRY_LABEL",
-                    "CLINICAL_STAGE"
+                    "CLINICAL_STAGE",
+                    "ONCOTREE_CODE",
+                    "GRADE"
 ]
 
 CLINICAL_MAX_NULL_FRAC = 0.25
