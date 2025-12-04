@@ -4,6 +4,9 @@ import pandas as pd
 import torch
 from torch import nn
 from torch.utils.data import Dataset, DataLoader, TensorDataset
+from ray import tune
+from ray.tune.schedulers import ASHAScheduler
+from ray.tune import Checkpoint
 import joblib
 import random
 import pickle
@@ -11,7 +14,7 @@ import numpy as np
 from statistics import mean, stdev
 from sklearn.metrics import roc_auc_score, precision_score, recall_score, confusion_matrix, f1_score, average_precision_score
 from sklearn.feature_selection import SelectKBest, f_classif, SelectFromModel
-from sklearn.model_selection import RepeatedStratifiedKFold
+from sklearn.model_selection import StratifiedKFold
 from itertools import product
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
@@ -25,57 +28,19 @@ set_random_seed(config.SEED, deterministic=True)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-class MultimodalDataset(Dataset):
-    def __init__(self, X, y, clinical_cols, mrna_cols, mutation_cols):
-        # Split modalities
-        self.clinical = X[clinical_cols].to_numpy()
-        self.mrna = X[mrna_cols].to_numpy().astype(float)
-        self.mutation = X[mutation_cols].to_numpy().astype(float)
-        self.labels = y.to_numpy().astype(float)
-                
-    def __len__(self):
-        return len(self.labels)
-    
-    def __getitem__(self, idx):
-        return (
-            torch.tensor(self.clinical[idx], dtype=torch.float32),
-            torch.tensor(self.mrna[idx], dtype=torch.float32),
-            torch.tensor(self.mutation[idx], dtype=torch.float32),
-            torch.tensor(self.labels[idx], dtype=torch.float32)
-        )
-
 # Load splits and column lists
 X_train = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "X_train.joblib"))
 y_train = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "y_train.joblib"))
-X_val = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "X_val.joblib"))
-y_val = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "y_val.joblib"))
-X_test = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "X_test.joblib"))
-y_test = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "y_test.joblib"))
 clinical_cols = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "clinical_cols.joblib"))
 mrna_cols = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "mrna_cols.joblib"))
 mutation_cols = joblib.load(os.path.join(config.SPLIT_DATA_DIR, "mutation_cols.joblib"))
-
-X_testval = pd.concat([X_val, X_test], axis=0).reset_index(drop=True)
-y_testval = pd.concat([y_val, y_test], axis=0).reset_index(drop=True)
 
 # Split modalities
 clinical_train = X_train[clinical_cols]
 mrna_train = X_train[mrna_cols]
 mutation_train = X_train[mutation_cols]
 
-clinical_val = X_val[clinical_cols]
-mrna_val = X_val[mrna_cols]
-mutation_val = X_val[mutation_cols]
-
-clinical_test = X_test[clinical_cols]
-mrna_test = X_test[mrna_cols]
-mutation_test = X_test[mutation_cols]
-
-clinical_testval = X_testval[clinical_cols]
-mrna_testval = X_testval[mrna_cols]
-mutation_testval = X_testval[mutation_cols]
-
-def to_loader(c, m, mu, y, shuffle=False):
+def to_loader(clinical, mrna, mutation, y, shuffle=False):
     """
     Convert pandas DataFrames / numpy arrays to a PyTorch DataLoader.
     Includes a numeric check and prints warnings if non-numeric columns
@@ -94,9 +59,9 @@ def to_loader(c, m, mu, y, shuffle=False):
             print(df[non_numeric_cols].head())
         return df.to_numpy(dtype=np.float32)
     
-    c = check_numeric(c, "Clinical")
-    m = check_numeric(m, "mRNA")
-    mu = check_numeric(mu, "Mutation")
+    clinical = check_numeric(clinical, "Clinical")
+    mrna = check_numeric(mrna, "mRNA")
+    mutation = check_numeric(mutation, "Mutation")
 
     if isinstance(y, (pd.DataFrame, pd.Series)):
         y = y.to_numpy(dtype=np.float32).reshape(-1, 1)
@@ -105,9 +70,9 @@ def to_loader(c, m, mu, y, shuffle=False):
     y = y.squeeze() # converts from [x, 1] to [x] shape
 
     ds = TensorDataset(
-        torch.tensor(c, dtype=torch.float32),
-        torch.tensor(m, dtype=torch.float32),
-        torch.tensor(mu, dtype=torch.float32),
+        torch.tensor(clinical, dtype=torch.float32),
+        torch.tensor(mrna, dtype=torch.float32),
+        torch.tensor(mutation, dtype=torch.float32),
         torch.tensor(y, dtype=torch.float32)
     )
     return DataLoader(ds, batch_size=config.BATCH_SIZE, shuffle=shuffle)
@@ -116,67 +81,48 @@ def to_loader(c, m, mu, y, shuffle=False):
 # =======================
 # Neural Network
 # =======================
-class MultimodalNet(nn.Module):
-    def __init__(self,
-                 clin_dim, mrna_dim, mut_dim,
-                 clin_hidden=[64, 32],
-                 mrna_hidden=[64, 32],
-                 mut_hidden=[64, 32],
-                 clin_dropout=[0, 0],
-                 mrna_dropout=[0, 0],
-                 mut_dropout=[0, 0],
-                 activation='relu',
-                 fusion_hidden=64,
-                 fusion_dropout=0,
-                 use_gene_sel=True,
-                ):
+class SimpleMultimodalNet(nn.Module):
+    def __init__(self, clin_dim, mrna_dim, mut_dim, hidden_dim=config.HIDDEN_DIM, dropout=config.DROPOUT, lr=config.LEARNING_RATE):
         super().__init__()
-        
-        self.use_gene_sel = use_gene_sel
-        if use_gene_sel:
-            # ===== Gene selectors (for omics modalities) =====
-            self.gene_sel_mrna = GeneSelector(mrna_dim)
-            self.gene_sel_mut = GeneSelector(mut_dim)
 
-        # ===== Modality encoders =====
-        self.enc_clin = ModalityEncoder(clin_dim, clin_hidden, clin_dropout, activation)
-        self.enc_mrna = ModalityEncoder(mrna_dim, mrna_hidden, mrna_dropout, activation)
-        self.enc_mut  = ModalityEncoder(mut_dim, mut_hidden, mut_dropout, activation)
-
-
-        # ===== Fusion + final classifier =====
-        total_dim = clin_hidden[-1] + mrna_hidden[-1] + mut_hidden[-1]
-        self.fusion_fc = nn.Sequential(
-            nn.Linear(total_dim, fusion_hidden),
+        # Separate encoders for each modality
+        self.clinical_fc = nn.Sequential(
+            nn.Linear(clin_dim, hidden_dim), 
             nn.ReLU(),
-            nn.Dropout(fusion_dropout),
-            nn.Linear(fusion_hidden, 1)
+            nn.Dropout(dropout)
+            )
+        self.mrna_fc = nn.Sequential(
+            nn.Linear(mrna_dim, hidden_dim), 
+            nn.ReLU(),
+            nn.Dropout(dropout)
+            )
+        self.mut_fc = nn.Sequential(
+            nn.Linear(mut_dim, hidden_dim), 
+            nn.ReLU(),
+            nn.Dropout(dropout)
+        )
+        
+        # Fusion layer
+        self.fusion_fc = nn.Sequential(
+            nn.Linear(hidden_dim * 3, hidden_dim),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, 1),  # Binary output
         )
         
     def forward(self, clin, mrna, mut):
-        if self.use_gene_sel:
-            # Apply gene selectors
-            mrna = self.gene_sel_mrna(mrna)
-            mut = self.gene_sel_mut(mut)
-
-        # Encode each modality
-        clin_emb = self.enc_clin(clin)
-        mrna_emb = self.enc_mrna(mrna)
-        mut_emb  = self.enc_mut(mut)
+        clin_emb = self.clinical_fc(clin)
+        mrna_emb = self.mrna_fc(mrna)
+        mut_emb = self.mut_fc(mut)
         
-        # Fuse and classify
+        # Concatenate embeddings
         fused = torch.cat([clin_emb, mrna_emb, mut_emb], dim=1)
         output = self.fusion_fc(fused)
         return output.squeeze()
 
 
 def train_one_fold(train_loader, val_loader, model, optimizer, criterion, seed):
-    torch.manual_seed(seed)
-    np.random.seed(seed)
-    random.seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
+    set_random_seed(seed, deterministic=True)
 
     best_val_auroc, best_state, patience_counter = 0, None, 0
 
@@ -214,6 +160,50 @@ def train_one_fold(train_loader, val_loader, model, optimizer, criterion, seed):
 
     return best_state
 
+
+def train_one_fold(train_loader, val_loader, model, optimizer, criterion, seed, report_to_ray=True):
+    set_random_seed(seed, deterministic=True)
+
+    best_val_auroc, best_state, patience_counter = 0, None, 0
+
+    for epoch in range(config.NUM_EPOCHS):
+        model.train()
+        for clin, mrna, mut, y in train_loader:
+            clin, mrna, mut, y = clin.to(device), mrna.to(device), mut.to(device), y.to(device)
+            optimizer.zero_grad()
+            outputs = model(clin, mrna, mut)
+            loss = criterion(outputs, y)
+            loss.backward()
+            optimizer.step()
+
+        model.eval()
+        all_probs, all_labels = [], []
+        with torch.no_grad():
+            for clin, mrna, mut, y in val_loader:
+                clin, mrna, mut, y = clin.to(device), mrna.to(device), mut.to(device), y.to(device)
+                probs = torch.sigmoid(model(clin, mrna, mut)).cpu().numpy()
+                all_probs.append(probs)
+                all_labels.append(y.cpu().numpy())
+
+        all_probs = np.concatenate(all_probs)
+        all_labels = np.concatenate(all_labels)
+        val_auroc = roc_auc_score(all_labels, all_probs)
+
+        if report_to_ray:
+            tune.report(val_auroc=val_auroc)
+        
+        if val_auroc > best_val_auroc:
+            best_val_auroc = val_auroc
+            best_state = model.state_dict()
+            patience_counter = 0
+        else:
+            patience_counter += 1
+            if patience_counter >= config.PATIENCE:
+                break
+
+    return best_state
+
+
 def evaluate_with_threshold(model, loader, threshold):
     model.eval()
     all_probs, all_labels = [], []
@@ -240,18 +230,15 @@ def evaluate_with_threshold(model, loader, threshold):
 
 def run_kfold_gridsearch_with_preprocessing(
     clinical_df, mrna_df, mutation_df, labels,
-    external_clinical_df, external_mrna_df, external_mutation_df, external_labels,
     param_grid,
     k=5,
-    n_repeats=3,
-    optimize_metric='f1',
 ):
     """
     Grid search with repeated stratified K-fold CV, fitting preprocessors and
     feature selectors (SelectFromModel) within each fold.
     """
 
-    rskf = RepeatedStratifiedKFold(n_splits=k, n_repeats=n_repeats, random_state=config.SEED)
+    skf = StratifiedKFold(n_splits=k, random_state=config.SEED)
     indices = np.arange(len(labels))
     param_combinations = list(product(*param_grid.values()))
     best_hyperparams, best_score = None, -1
@@ -262,7 +249,6 @@ def run_kfold_gridsearch_with_preprocessing(
         print(f"\n===== Hyperparams: {param_dict} =====")
 
         fold_metrics = {'auroc': [], 'auprc': [], 'precision': [], 'recall': [], 'f1': []}
-        external_metrics = {'auroc': [], 'auprc': [], 'precision': [], 'recall': [], 'f1': []}
 
         for fold, (train_idx, val_idx) in enumerate(rskf.split(indices, labels)):
             print(f"\n--- Fold {fold + 1}/{k} ---")
@@ -294,15 +280,12 @@ def run_kfold_gridsearch_with_preprocessing(
 
             clin_train = clinical_prep.transform(clin_train)
             clin_val = clinical_prep.transform(clin_val)
-            clin_ext = clinical_prep.transform(external_clinical_df.copy())
 
             mrna_train = mrna_prep.transform(mrna_train)
             mrna_val = mrna_prep.transform(mrna_val)
-            mrna_ext = mrna_prep.transform(external_mrna_df.copy())
 
             mut_train = mutation_prep.transform(mut_train)
             mut_val = mutation_prep.transform(mut_val)
-            mut_ext = mutation_prep.transform(external_mutation_df.copy())
 
             # === SelectFromModel for mRNA ===
             mrna_model_cls = param_dict["mrna_model"]  # e.g., LogisticRegression, RandomForestClassifier
@@ -328,7 +311,6 @@ def run_kfold_gridsearch_with_preprocessing(
             sfm_mrna.fit(mrna_train, y_train)
             mrna_train = sfm_mrna.transform(mrna_train)
             mrna_val   = sfm_mrna.transform(mrna_val)
-            mrna_ext   = sfm_mrna.transform(mrna_ext)
             
             
             # === SelectFromModel for mutation ===
@@ -353,12 +335,10 @@ def run_kfold_gridsearch_with_preprocessing(
             sfm_mut.fit(mut_train, y_train)
             mut_train = sfm_mut.transform(mut_train)
             mut_val   = sfm_mut.transform(mut_val)
-            mut_ext   = sfm_mut.transform(mut_ext)
 
             # --- Build datasets and dataloaders ---
             train_loader = to_loader(clin_train, mrna_train, mut_train, y_train, shuffle=True)
             val_loader = to_loader(clin_val, mrna_val, mut_val, y_val)
-            ext_loader = to_loader(clin_ext, mrna_ext, mut_ext, external_labels)
 
             model = SimpleMultimodalNet(clin_train.shape[1], mrna_train.shape[1], mut_train.shape[1],
                                         param_dict["hidden_dim"], param_dict["dropout"], param_dict["lr"]).to(device)
@@ -389,21 +369,15 @@ def run_kfold_gridsearch_with_preprocessing(
                     best_metric, best_t = score, t
 
             val_metrics = evaluate_with_threshold(model, val_loader, best_t)
-            ext_metrics = evaluate_with_threshold(model, ext_loader, best_t)
 
             print(f"Val metrics: {val_metrics}")
-            print(f"Ext metrics: {ext_metrics}")
 
             for k_ in fold_metrics.keys():
                 fold_metrics[k_].append(val_metrics[k_])
-                external_metrics[k_].append(ext_metrics[k_])
 
-        results_summary[str(param_dict)] = {
-            "internal": {k: (mean(v), stdev(v)) for k, v in fold_metrics.items()},
-            "external": {k: (mean(v), stdev(v)) for k, v in external_metrics.items()}
-        }
+        results_summary[str(param_dict)] ={k: (mean(v), stdev(v)) for k, v in fold_metrics.items()}
 
-        mean_f1 = results_summary[str(param_dict)]["internal"]["f1"][0]
+        mean_f1 = results_summary[str(param_dict)]["f1"][0]
         if mean_f1 > best_score:
             best_score = mean_f1
             best_hyperparams = param_dict
