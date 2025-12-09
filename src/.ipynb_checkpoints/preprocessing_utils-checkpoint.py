@@ -77,6 +77,7 @@ def load_mrna_data(mrna_file):
     mrna_df= mrna_df.transpose() # now the patients are the index and the genes are the columns
     assert all(idx.endswith("01") for idx in mrna_df.index), "Not all IDs end with '01'"
     mrna_df.index = [id[:-3] for id in mrna_df.index] # removes extranious -01 so that the patient ids match the clinical data
+    mrna_df.columns = mrna_df.columns.astype(str) + "_exp"
     return mrna_df
 
 def load_mutation_data(mutation_file):
@@ -810,8 +811,10 @@ class MutationPreprocessor(BasePreprocessor):
     def fit(self, X, y=None):
         removed = []
 
-        # Clip mutation counts above 10 because these are often due to passenger genes, not valueable information
+        # Clip mutation counts above max_mutation_count because these are often due to passenger genes, not valueable information
         X = X.clip(upper=self.max_mutation_count)
+        # normalize to be within 0-1
+        X = X / self.max_mutation_count
 
         # Drop highly uniform columns
         X_temp, uniform_cols = self._drop_highly_uniform_columns(X)
@@ -829,6 +832,7 @@ class MutationPreprocessor(BasePreprocessor):
     def transform(self, X):
         # Drop known removed cols
         X = X.drop(columns=[c for c in self.removed_cols_ if c in X.columns], errors="ignore")
+        X = X / self.max_mutation_count
 
         # Check column alignment
         missing = set(self.columns_) - set(X.columns)
