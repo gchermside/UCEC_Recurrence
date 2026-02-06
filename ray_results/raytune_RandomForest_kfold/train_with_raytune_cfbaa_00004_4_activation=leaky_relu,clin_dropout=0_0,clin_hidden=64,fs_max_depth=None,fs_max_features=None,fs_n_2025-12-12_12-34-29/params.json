@@ -1,0 +1,46 @@
+{
+  "activation": "leaky_relu",
+  "clin_dropout": [
+    0.0
+  ],
+  "clin_hidden": [
+    64
+  ],
+  "clinical_train_ref": "ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000015e1f505)",
+  "fs_max_depth": null,
+  "fs_max_features": null,
+  "fs_method": "RandomForest",
+  "fs_n_estimators": 200,
+  "fs_threshold": "0.5*mean",
+  "fusion_dropout": 0.08263346953150125,
+  "fusion_hidden": 256,
+  "lr": 1.0366601559510748e-05,
+  "max_mutation_count": 15,
+  "momentum": 0.9549376714064185,
+  "mrna_dropout": [
+    0.0
+  ],
+  "mrna_hidden": [
+    256,
+    128
+  ],
+  "mrna_train_ref": "ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000016e1f505)",
+  "mut_dropout": [
+    0.0
+  ],
+  "mut_hidden": [
+    128,
+    64
+  ],
+  "mutation_train_ref": "ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000017e1f505)",
+  "mutation_uniform_thresh": 0.9355393366358012,
+  "n_folds": 3,
+  "nesterov": true,
+  "num_epochs": 1000,
+  "optimizer": "RMSprop",
+  "patience": 100,
+  "rmsprop_alpha": 0.9704228533221163,
+  "seed": 42,
+  "weight_decay": 1.0521761868451139e-06,
+  "y_train_ref": "ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000018e1f505)"
+}

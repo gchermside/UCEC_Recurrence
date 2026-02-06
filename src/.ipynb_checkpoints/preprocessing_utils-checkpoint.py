@@ -120,8 +120,67 @@ def load_mutation_data(mutation_file):
     
     return mut_df
 
+def label_patients_simple(clinical_df, min_followup_months=36):
+    """
+    Label patients as recurrence (1), no recurrence (0), or unknown (NaN).
 
-def label_patients_with_stats(status_df, treatment_df=None, clinical_df=None, min_followup_days=1095):
+    Lableing Algorithm:
+    1. If a patient under DFS_STATUS is Recurred/Progressed, label 1.
+    2. If a patient has a followup days greater than or equal to min_followup_days and DFS_STATUS is "0:DiseaseFree" lable 0
+    3. If a patient does not have data for DFS_STATUS, but NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT is yes, label 1.
+    4. If a patient does not have data for DFS_STATUS, but NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT is no
+       and has a followup days greater than or equal to min_followup_days, label 0.
+    5. Otherwise, label NaN.
+    """
+    results = []
+
+    for pid, row in clinical_df.iterrows():
+        dfs_status = row.get("DFS_STATUS", np.nan)
+        dfs_months = row.get("DFS_MONTHS", np.nan)
+        new_tumor = row.get("NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT", np.nan)
+
+        label = np.nan
+        source = None
+
+        # Rule 1: Recurrence
+        if dfs_status == "1:Recurred/Progressed":
+            label = 1
+            source = "DFS_STATUS"
+
+        # Rule 2: Disease-free + sufficient follow-up
+        elif dfs_status == "0:DiseaseFree" and dfs_months >= min_followup_months:
+            label = 0
+            source = "DFS_STATUS"
+
+        # Rule 3: No DFS, new tumor event
+        elif pd.isna(dfs_status) and new_tumor == "Yes":
+            label = 1
+            source = "NEW_TUMOR_EVENT"
+
+        # Rule 4: No DFS, no tumor, long follow-up
+        elif pd.isna(dfs_status) and new_tumor == "No" and dfs_months >= min_followup_months:
+            label = 0
+            source = "FOLLOWUP_ONLY"
+
+        # Rule 5: Inconclusive
+        else:
+            label = np.nan
+            source = "INSUFFICIENT_DATA"
+
+        results.append({
+            "PATIENT_ID": row["PATIENT_ID"],
+            "LABEL": label,
+            "DFS_MONTHS": dfs_months,
+            "DFS_STATUS": dfs_status,
+            "NEW_TUMOR_EVENT_AFTER_INITIAL_TREATMENT": new_tumor,
+            "SOURCE": source
+        })
+
+    return pd.DataFrame(results)
+
+
+
+def label_patients_with_stats(status_df, treatment_df, clinical_df, min_followup_days=1095):
     '''
     Rules:
     1. Positive for recurrence (1) if:
@@ -505,88 +564,88 @@ def drop_patients_missing_data(clinical_df, mrna_df, mutation_df, labels):
     return clinical_df_clean, mrna_df_clean, mutation_df_clean, labels_clean
 
 
-def stratified_split_with_balance_check(
-    df, y, clinical_cols, test_size=config.TEST_SIZE, val_size=config.VAL_SIZE,
-    max_attempts=config.STRATIFICATION_MAX_ATTEMPTS, p_thresh=config.P_VALUE_STRATIFICATION, random_state=config.SEED
-):
-    """
-    Split the dataset into train/val/test (70/15/15) stratified by y,
-    and ensure clinical features are balanced across splits.
+# def stratified_split_with_balance_check(
+#     df, y, clinical_cols, test_size=config.TEST_SIZE, val_size=config.VAL_SIZE,
+#     max_attempts=config.STRATIFICATION_MAX_ATTEMPTS, p_thresh=config.P_VALUE_STRATIFICATION, random_state=config.SEED
+# ):
+#     """
+#     Split the dataset into train/val/test (70/15/15) stratified by y,
+#     and ensure clinical features are balanced across splits.
 
-    A split is rejected if ANY clinical feature has p < p_thresh.
-    """
+#     A split is rejected if ANY clinical feature has p < p_thresh.
+#     """
 
-    for attempt in range(max_attempts):
-        print("on attempt", attempt)
+#     for attempt in range(max_attempts):
+#         print("on attempt", attempt)
         
-        # Step 1: split into train+val and test
-        X_trainval, X_test, y_trainval, y_test = train_test_split(
-            df, y, test_size=test_size, stratify=y, random_state=(random_state + attempt)
-        )
+#         # Step 1: split into train+val and test
+#         X_trainval, X_test, y_trainval, y_test = train_test_split(
+#             df, y, test_size=test_size, stratify=y, random_state=(random_state + attempt)
+#         )
 
-        # Step 2: split trainval into train and val
-        rel_val_size = val_size / (1 - test_size)
-        X_train, X_val, y_train, y_val = train_test_split(
-            X_trainval, y_trainval, test_size=rel_val_size,
-            stratify=y_trainval, random_state=attempt
-        )
+#         # Step 2: split trainval into train and val
+#         rel_val_size = val_size / (1 - test_size)
+#         X_train, X_val, y_train, y_val = train_test_split(
+#             X_trainval, y_trainval, test_size=rel_val_size,
+#             stratify=y_trainval, random_state=attempt
+#         )
 
-        # Step 3: test for imbalance across splits for clinical features
-        p_values = []
-        reject_split = False
+#         # Step 3: test for imbalance across splits for clinical features
+#         p_values = []
+#         reject_split = False
 
-        for feature in clinical_cols:
-            print("feature:", feature)
+#         for feature in clinical_cols:
+#             print("feature:", feature)
 
-            # Handle numeric features
-            if np.issubdtype(df[feature].dtype, np.number):
-                vals = [
-                    X_train[feature].dropna(),
-                    X_val[feature].dropna(),
-                    X_test[feature].dropna()
-                ]
-                pairs = [(0, 1), (0, 2), (1, 2)]
-                for (i, j) in pairs:
-                    if len(vals[i]) > 0 and len(vals[j]) > 0:
-                        if vals[i].nunique() > 1 or vals[j].nunique() > 1:
-                            try:
-                                _, p = mannwhitneyu(vals[i], vals[j], alternative='two-sided')
-                                print(f"  numerical ({i}-{j}) p =", p)
-                                p_values.append(p)
-                                if p < p_thresh:
-                                    reject_split = True
-                            except Exception as e:
-                                print(f"  numerical test failed ({i}-{j}):", e)
+#             # Handle numeric features
+#             if np.issubdtype(df[feature].dtype, np.number):
+#                 vals = [
+#                     X_train[feature].dropna(),
+#                     X_val[feature].dropna(),
+#                     X_test[feature].dropna()
+#                 ]
+#                 pairs = [(0, 1), (0, 2), (1, 2)]
+#                 for (i, j) in pairs:
+#                     if len(vals[i]) > 0 and len(vals[j]) > 0:
+#                         if vals[i].nunique() > 1 or vals[j].nunique() > 1:
+#                             try:
+#                                 _, p = mannwhitneyu(vals[i], vals[j], alternative='two-sided')
+#                                 print(f"  numerical ({i}-{j}) p =", p)
+#                                 p_values.append(p)
+#                                 if p < p_thresh:
+#                                     reject_split = True
+#                             except Exception as e:
+#                                 print(f"  numerical test failed ({i}-{j}):", e)
 
-            # Handle categorical features
-            else:
-                tmp = pd.concat([
-                    X_train.assign(split='train'),
-                    X_val.assign(split='val'),
-                    X_test.assign(split='test')
-                ])
-                contingency = pd.crosstab(tmp[feature], tmp['split'])
-                if contingency.shape[0] > 1 and contingency.shape[1] > 1:
-                    try:
-                        _, p, _, _ = chi2_contingency(contingency)
-                        print(f"  categorical p =", p)
-                        p_values.append(p)
-                        if p < p_thresh:
-                            reject_split = True
-                    except Exception as e:
-                        print("  categorical test failed:", e)
-                else:
-                    print("  categorical skipped (not enough variation)")
+#             # Handle categorical features
+#             else:
+#                 tmp = pd.concat([
+#                     X_train.assign(split='train'),
+#                     X_val.assign(split='val'),
+#                     X_test.assign(split='test')
+#                 ])
+#                 contingency = pd.crosstab(tmp[feature], tmp['split'])
+#                 if contingency.shape[0] > 1 and contingency.shape[1] > 1:
+#                     try:
+#                         _, p, _, _ = chi2_contingency(contingency)
+#                         print(f"  categorical p =", p)
+#                         p_values.append(p)
+#                         if p < p_thresh:
+#                             reject_split = True
+#                     except Exception as e:
+#                         print("  categorical test failed:", e)
+#                 else:
+#                     print("  categorical skipped (not enough variation)")
 
-        # Step 4: if any p < threshold, reject split
-        if not reject_split:
-            print(f"Balanced split achieved after {attempt+1} attempts.")
-            return X_train, X_val, X_test, y_train, y_val, y_test
-        else:
-            print(f"Rejected split {attempt+1} due to imbalance (min p = {min(p_values):.4g})")
+#         # Step 4: if any p < threshold, reject split
+#         if not reject_split:
+#             print(f"Balanced split achieved after {attempt+1} attempts.")
+#             return X_train, X_val, X_test, y_train, y_val, y_test
+#         else:
+#             print(f"Rejected split {attempt+1} due to imbalance (min p = {min(p_values):.4g})")
 
-    print("Could not achieve balance after max attempts.")
-    return X_train, X_val, X_test, y_train, y_val, y_test
+#     print("Could not achieve balance after max attempts.")
+#     return X_train, X_val, X_test, y_train, y_val, y_test
 
 
 def load_and_split_data(clinical_patient_file=config.CLINICAL_DATA_PATH,
@@ -688,6 +747,7 @@ class ClinicalPreprocessor(BasePreprocessor):
         self.columns_ = None  # final column order
         self.num_fill_values_ = {}
         self.cat_fill_values_ = {}
+        self.weight_bins_ = None
         
     def fit(self, X, y=None):
         # --- Step 1. Drop specified columns
@@ -700,6 +760,33 @@ class ClinicalPreprocessor(BasePreprocessor):
         
         # --- Step 3. Drop highly uniform columns
         modified_df, cols_to_remove = self._drop_highly_uniform_columns(X)
+
+        # --- Step 4.5 Bin WEIGHT into 4 bins
+        if "WEIGHT" in X.columns:
+            # Learn bins from training data
+            self.weight_bins_ = pd.qcut(
+                X["WEIGHT"],
+                q=4,
+                retbins=True,
+                duplicates="drop"
+            )[1]
+        
+            # Apply bins to create a categorical
+            X["WEIGHT_BIN"] = pd.cut(
+                X["WEIGHT"],
+                bins=self.weight_bins_,
+                include_lowest=True
+            )
+        
+            # Create generic descriptive names
+            weight_bin_names = [f"{i+1}" for i in range(len(self.weight_bins_)-1)]
+            self.weight_bin_names_ = weight_bin_names  # save for transform
+            
+            # Reassign renamed categories safely
+            X["WEIGHT_BIN"] = X["WEIGHT_BIN"].cat.rename_categories(self.weight_bin_names_)
+        
+            # Drop raw WEIGHT
+            X = X.drop(columns=["WEIGHT"])
 
         removed.extend(cols_to_remove)
 
@@ -719,7 +806,7 @@ class ClinicalPreprocessor(BasePreprocessor):
             X[c] = X[c].fillna(mode_val)
         
         # --- Step 6. One-hot encode categorical
-        X_enc = pd.get_dummies(X, columns=cat_cols, drop_first=True)
+        X_enc = pd.get_dummies(X, columns=cat_cols, drop_first=False)
         
         # Save results
         self.removed_cols_ = removed
@@ -731,7 +818,21 @@ class ClinicalPreprocessor(BasePreprocessor):
         # Drop removed cols
         X = X.drop(columns=[c for c in self.removed_cols_ if c in X.columns])
         
-        # --- Fill NaNs using training fill values
+        # --- Apply WEIGHT binning learned during fit
+        if self.weight_bins_ is not None and "WEIGHT" in X.columns:
+            X["WEIGHT_BIN"] = pd.cut(
+                X["WEIGHT"],
+                bins=self.weight_bins_,
+                include_lowest=True
+            )
+        
+            # rename categories using the same names from fit
+            X["WEIGHT_BIN"] = X["WEIGHT_BIN"].cat.rename_categories(self.weight_bin_names_)
+        
+        # drop raw WEIGHT
+        X = X.drop(columns=["WEIGHT"])
+    
+    # --- Fill NaNs using training fill values
         numeric_cols = X.select_dtypes(include=['number']).columns
         for c in numeric_cols:
             if c in self.num_fill_values_:
@@ -743,7 +844,7 @@ class ClinicalPreprocessor(BasePreprocessor):
                 X[c] = X[c].fillna(self.cat_fill_values_[c])
         
         # One-hot encode
-        X_enc = pd.get_dummies(X, columns=cat_cols, drop_first=True)
+        X_enc = pd.get_dummies(X, columns=cat_cols, drop_first=False)
         
         # Reindex to training columns (fill missing with 0)
         X_enc = X_enc.reindex(columns=self.columns_, fill_value=0)

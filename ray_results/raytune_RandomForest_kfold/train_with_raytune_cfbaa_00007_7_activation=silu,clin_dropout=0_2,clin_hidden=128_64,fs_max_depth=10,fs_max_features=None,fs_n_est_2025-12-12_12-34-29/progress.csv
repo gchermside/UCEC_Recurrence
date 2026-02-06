@@ -1,0 +1,2 @@
+auroc,auprc,f1,epoch,timestamp,checkpoint_dir_name,done,training_iteration,trial_id,date,time_this_iter_s,time_total_s,pid,hostname,node_ip,time_since_restore,iterations_since_restore
+0.777017625231911,0.6901496278380624,0.6826852362566648,1000,1765563508,,False,1,cfbaa_00007,2025-12-12_13-18-28,181.0598258972168,181.0598258972168,696396,gpu2001.oscar.ccv.brown.edu,172.20.216.1,181.0598258972168,1

@@ -72,11 +72,13 @@ CATEGORICAL_COLS = ['SUBTYPE',
                     "GENETIC_ANCESTRY_LABEL",
                     "CLINICAL_STAGE",
                     "ONCOTREE_CODE",
-                    "GRADE"
+                    "GRADE",
+                    "WEIGHT_BIN"
 ]
 
 CLINICAL_MAX_NULL_FRAC = 0.25
 CLINICAL_UNIFORM_THRESH = 0.90
+WEIGHT_NUM_BINS = 4
 
 # Mrna preprocessing hyperparameters ------------------------------------------------------
 

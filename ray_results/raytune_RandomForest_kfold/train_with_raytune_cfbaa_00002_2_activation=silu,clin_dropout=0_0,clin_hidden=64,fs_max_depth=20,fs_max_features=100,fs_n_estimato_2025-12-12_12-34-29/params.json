@@ -1,0 +1,45 @@
+{
+  "activation": "silu",
+  "clin_dropout": [
+    0.0
+  ],
+  "clin_hidden": [
+    64
+  ],
+  "clinical_train_ref": "ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000015e1f505)",
+  "fs_max_depth": 20,
+  "fs_max_features": 100,
+  "fs_method": "RandomForest",
+  "fs_n_estimators": 100,
+  "fs_threshold": "median",
+  "fusion_dropout": 0.15230688458668534,
+  "fusion_hidden": 128,
+  "lr": 1.2521954287060383e-05,
+  "max_mutation_count": 15,
+  "momentum": 0.9583070332298712,
+  "mrna_dropout": [
+    0.2
+  ],
+  "mrna_hidden": [
+    128
+  ],
+  "mrna_train_ref": "ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000016e1f505)",
+  "mut_dropout": [
+    0.2
+  ],
+  "mut_hidden": [
+    128,
+    64
+  ],
+  "mutation_train_ref": "ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000017e1f505)",
+  "mutation_uniform_thresh": 0.9396137244365641,
+  "n_folds": 3,
+  "nesterov": true,
+  "num_epochs": 1000,
+  "optimizer": "SGD",
+  "patience": 100,
+  "rmsprop_alpha": 0.9900227198057994,
+  "seed": 42,
+  "weight_decay": 0.0002754143921332034,
+  "y_train_ref": "ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000018e1f505)"
+}

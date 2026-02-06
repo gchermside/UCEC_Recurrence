@@ -77,12 +77,22 @@ def evaluate_with_threshold(model, loader, threshold, device):
     all_labels = np.concatenate(all_labels)
     preds = (all_probs >= threshold).astype(float)
 
+    # Confusion matrix components
+    TP = np.sum((preds == 1) & (all_labels == 1))
+    FP = np.sum((preds == 1) & (all_labels == 0))
+    TN = np.sum((preds == 0) & (all_labels == 0))
+    FN = np.sum((preds == 0) & (all_labels == 1))
+
     metrics = {
         'auroc': roc_auc_score(all_labels, all_probs),
         'auprc': average_precision_score(all_labels, all_probs),
         'precision': precision_score(all_labels, preds, zero_division=0),
         'recall': recall_score(all_labels, preds, zero_division=0),
-        'f1': f1_score(all_labels, preds, zero_division=0)
+        'f1': f1_score(all_labels, preds, zero_division=0),
+        'TP': int(TP),
+        'FP': int(FP),
+        'TN': int(TN),
+        'FN': int(FN)
     }
     return metrics
 
